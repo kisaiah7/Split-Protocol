@@ -2,41 +2,29 @@ import type { NextPage } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import icon from '../public/icon.svg'
+import Connect from './Button/connect'
 
 const Navbar: NextPage = () => {
     return (
-        <header>
-            <div className="container mx-auto">
-                <ul>
-                    <li className="">
-                        <Link href="/">
-                            <Image src={icon} width={40} height={40} />
-                        </Link>
-                    </li>
+        <header className="bg-navbar-gradient backdrop-blur">
+            <div className="container mx-auto flex flex-row justify-between py-2 ">
+                <Link href="/">
+                    <Image src={icon} width={40} height={40} />
+                </Link>
 
-                    <li className="">
-                        <Link href="/dashboard">
-                            <a>Dashboard</a>
-                        </Link>
-                    </li>
+                <div className='flex flex-row justify-between items-center'>
+                    <Link href="/dashboard">
+                        <a className='text-muted font-bold text-sm'>Dashboard</a>
+                    </Link>
 
-                    <li className="">
-                        <Link href="/create">
-                            <a>Create Expense</a>
-                        </Link>
-                    </li>
+                    <Link href="/create">
+                        <a className='ml-6 text-muted font-bold text-sm'>Create Expense</a>
+                    </Link>
 
-                    <li className="">
-                        <Link href="/connect">
-                            <a>
-                                <Image src="/chain.svg" width={24} height={24} />
-                                Connect wallet
-                            </a>
-                        </Link>
-                    </li>
-                </ul>
-
-
+                    <div className='ml-10'>
+                        <Connect />
+                    </div>
+                </div>
             </div>
         </header>
     )
