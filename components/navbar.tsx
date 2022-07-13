@@ -17,7 +17,7 @@ const Navbar: NextPage = () => {
                         <a className='text-muted font-bold text-sm'>Dashboard</a>
                     </Link>
 
-                    <Link href="/create">
+                    <Link href="/expense/create">
                         <a className='ml-6 text-muted font-bold text-sm'>Create Expense</a>
                     </Link>
 

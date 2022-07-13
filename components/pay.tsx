@@ -1,31 +1,31 @@
 import type { NextPage } from 'next'
 import Image from 'next/image'
-import infoIcon from '../../public/info-icon.svg'
-import cancelIcon from '../../public/close-icon.svg'
-import checkIcon from '../../public/check-icon.svg'
+import infoIcon from '../public/info-icon.svg'
+import cancelIcon from '../public/close-icon.svg'
+import checkIcon from '../public/check-icon.svg'
 
 const Pay: NextPage = () => {
     return (
-        <div className='bg-secondary px-10 py-8 sm:container mx-auto rounded-lg'>
+        <form className='bg-secondary px-10 py-8 sm:container mx-auto rounded-lg'>
             <div className='grid grid-cols-2 w-full gap-3'>
                 <div>
-                    <p className='text-muted text-xs mb-2'>Token</p>
+                    <label className='text-muted text-xs mb-2'>Token</label>
                     <select className='w-full bg-form-field text-secondary text-sm px-3 py-2 rounded-sm' id='tokens'>
                         <option value='eth'>ETH</option>
                     </select>
                 </div>
                 <div>
-                    <p className='text-muted text-xs mb-2'>Share amount (in selected token)</p>
+                    <label className='text-muted text-xs mb-2'>Share amount (in selected token)</label>
                     <input type='number' className='w-full bg-form-field text-secondary text-sm px-3 py-2 rounded-sm'></input>
                 </div>
                 <div>
-                    <p className='text-muted text-xs mb-2'>Recipient token</p>
+                    <label className='text-muted text-xs mb-2'>Recipient token</label>
                     <select className='w-full bg-form-field text-secondary text-sm px-3 py-2 rounded-sm' id='tokens'>
                         <option value='eth'>USDT</option>
                     </select>
                 </div>
                 <div>
-                    <p className='text-muted text-xs mb-2'>Share amount (in recipient token)</p>
+                    <label className='text-muted text-xs mb-2'>Share amount (in recipient token)</label>
                     <input type='number' className='w-full bg-form-field text-secondary text-sm px-3 py-2 rounded-sm'></input>
                 </div>
             </div>
@@ -48,10 +48,10 @@ const Pay: NextPage = () => {
             </div>
 
             <div className='text-primary flex justify-end mt-7'>
-                <button className='flex items-center bg-cancel-gradient tracking-widest px-2 py-1 text-sm rounded-sm'><Image src={cancelIcon} /><a className='ml-2'>Cancel</a></button>
-                <button className='ml-3 flex items-center bg-btn-gradient tracking-widest px-2 py-1 text-sm rounded-sm'><Image src={checkIcon} /><a className='ml-2'>Confirm</a></button>
+                <button className='flex items-center bg-cancel-gradient tracking-widest px-2 py-1 text-sm rounded-sm'><Image width={16} src={cancelIcon} /> <a className='ml-2'>Cancel</a></button>
+                <button className='ml-3 flex items-center bg-btn-gradient tracking-widest px-2 py-1 text-sm rounded-sm'><Image width={16} src={checkIcon} /> <a className='ml-2'>Confirm</a></button>
             </div>
-        </div>
+        </form>
     )
 }
 

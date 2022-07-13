@@ -10,8 +10,8 @@ import calendarIcon from '../public/calendar-icon.svg'
 const Preview: NextPage = () => {
     return (
         <Link href='/expense/view'>
-            <div className='w-72'>
-                <div className='rounded-lg rounded-b-none bg-house-gradient h-48 flex justify-center items-center'>
+            <div className='w-full h-full cursor-pointer'>
+                <div className='rounded-lg rounded-b-none bg-house-gradient flex justify-center items-center h-48'>
                     <Image src={houseIcon} className='bg-white' width={100} height={100} />
                 </div>
 

@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import Pay from './pay'
+import Pay from '../../components/pay'
 import View from './view'
 
 const Expense: NextPage = () => {

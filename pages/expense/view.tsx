@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import cryptocat from '../../public/cryptocat.png'
 import houseIcon from '../../public/house-icon.svg'
 import coinsIcon from '../../public/coins-icon.svg'
@@ -56,7 +55,7 @@ const View: NextPage = () => {
 
                     <button className='mt-4 flex flex-row items-center text-primary w-fit bg-btn-gradient rounded-md px-3 py-2'>
                         <Image className='text-primary' src={coinsIcon} width={24} height={24} />
-                        <Link href='/expense/pay'><a className='ml-2'>Pay Share</a></Link>
+                        <a className='ml-2'>Pay Share</a>
                     </button>
                 </div>
             </div>
