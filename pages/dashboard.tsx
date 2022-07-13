@@ -3,7 +3,7 @@ import Preview from '../components/preview'
 
 const Dashboard: NextPage = () => {
     return (
-        <div className="h-screen bg-body-gradient">
+        <div className='h-screen bg-body-gradient'>
             <Preview />
         </div>
     )

@@ -16,17 +16,19 @@ module.exports = {
       },
     },
     backgroundImage: {
-      'navbar-gradient': 'linear-gradient(180deg, rgba(42, 37, 55, 0.7) 0%, #2A2537 0%, #2A2537 0.01%, rgba(65, 58, 85, 0.7) 100%)',
+      'navbar-gradient': 'linear-gradient(180deg, rgba(42, 37, 55, 0.7) 0%, #2A2537 0%, rgba(53, 47, 70, 0.7) 100%)',
       'body-gradient': 'linear-gradient(180deg, #2A2537 0%, #2A2537 0%, #2A2537 0.01%, #413A55 100%)',
       'btn-gradient': 'linear-gradient(90deg, #4700FF 0%, #9166FF 100%, #9166FF 100%)',
-      'house-gradient': 'linear-gradient(90deg, #F2B20D 0%, #F76E6E 100%)'
+      'house-gradient': 'linear-gradient(90deg, #F2B20D 0%, #F76E6E 100%)',
+      'cancel-gradient': 'linear-gradient(90deg, #2A2537 0%, #584E73 100%)'
     },
     fontFamily: {
       'sans': ['Noto Sans', 'system-ui'],
     },
     backgroundColor: {
       'secondary': '#1E1B28',
-      'tertiary': '#2A2537'
+      'tertiary': '#2A2537',
+      'form-field': '#353046'
     },
     colors: {
       'primary': '#FFFFFF',

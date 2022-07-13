@@ -3,7 +3,7 @@ import Create from './create'
 
 const Expense: NextPage = () => {
     return (
-        <div className="h-screen bg-body-gradient">
+        <div className='h-screen bg-body-gradient'>
             <Create />
         </div>
     )
