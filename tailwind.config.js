@@ -33,6 +33,13 @@ module.exports = {
       'secondary': '#E6E6E6',
       'muted': '#C8C2D6',
       'tertiary': '#2A2537'
+    },
+    fontSize: {
+      '2xs': '.5rem',
+      'xs': '.75rem',
+      'sm': '.875rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
     }
   },
   plugins: [],
