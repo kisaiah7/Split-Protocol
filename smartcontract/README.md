@@ -9,5 +9,8 @@ npx hardhat help
 npx hardhat test
 GAS_REPORT=true npx hardhat test
 npx hardhat node
-npx hardhat run scripts/deploy.js
+npx hardhat run scripts/deploy.js --network mumbai
 ```
+### Using ABI and contract addresses
+
+Abi and contract address can be found in /abis folder as `<ContractName>.json` where `<ContractName>` is the name of the contract.
