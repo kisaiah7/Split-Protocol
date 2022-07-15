@@ -236,7 +236,7 @@ contract Split is Ownable {
         );
     }
 
-    // get owed expenses of address detail
+    // get owed expenses detail of address 
     function getOwedExpense(address _debtorAddress, uint index)
         external
         view
