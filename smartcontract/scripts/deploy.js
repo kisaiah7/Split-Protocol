@@ -1,9 +1,14 @@
 const {ethers} = require('hardhat');
 require("dotenv").config({path: ".env"});
 
+async function main(){
+  const splitContract = await ethers.getContractFactory("Split");
 
-function main(){
-  //contract deployments
+  const deployedSplitContract = await splitContract.deploy();
+
+  await deployedSplitContract.deployed();
+
+  storeContractData(deployedSplitContract, "Split");
 }
 
 // auto write contract abi.json after deployment
