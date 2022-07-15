@@ -68,6 +68,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor1",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor2.address,
@@ -75,6 +77,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor2",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor3.address,
@@ -82,6 +86,8 @@ describe("Split Contract", function () {
                     tokenAddress: USDC,
                     name: "debtor3",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor4.address,
@@ -89,6 +95,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor4",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor5.address,
@@ -96,6 +104,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor5",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
             ],
         };
@@ -157,6 +167,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor1",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor2.address,
@@ -164,6 +176,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor2",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor3.address,
@@ -171,6 +185,8 @@ describe("Split Contract", function () {
                     tokenAddress: USDC,
                     name: "debtor3",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor4.address,
@@ -178,6 +194,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor4",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor5.address,
@@ -185,6 +203,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor5",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
             ],
         };
@@ -248,6 +268,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor1",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor2.address,
@@ -255,6 +277,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor2",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor3.address,
@@ -262,6 +286,8 @@ describe("Split Contract", function () {
                     tokenAddress: USDC,
                     name: "debtor3",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor4.address,
@@ -269,6 +295,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor4",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor5.address,
@@ -276,6 +304,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor5",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
             ],
         };
@@ -339,6 +369,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor1",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor2.address,
@@ -346,6 +378,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor2",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor3.address,
@@ -353,6 +387,8 @@ describe("Split Contract", function () {
                     tokenAddress: USDC,
                     name: "debtor3",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor4.address,
@@ -360,6 +396,8 @@ describe("Split Contract", function () {
                     tokenAddress: DAI,
                     name: "debtor4",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
                 {
                     _address: debtor5.address,
@@ -367,6 +405,8 @@ describe("Split Contract", function () {
                     tokenAddress: WETH9,
                     name: "debtor5",
                     avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
                 },
             ],
         };
@@ -387,11 +427,101 @@ describe("Split Contract", function () {
             await SplitContract.getNumberOfCreatedExpenses(creator.address);
 
         for (let idx = 0; idx < numberOfCreatedExpenses; idx++) {
-            result = await SplitContract.getCreatedExpense(creator.address, 0);
+            result = await SplitContract.getCreatedExpense(creator.address, idx);
 
             expect(result).to.include("Test Bar expense");
             expect(result).to.include("Spliting expenses among 5 people");
             expect(result).to.include(DAI);
+        }
+    });
+
+    it("should get owed expenses", async function () {
+        const expenseObj = {
+            name: "Test Bar expense",
+            description: "Spliting expenses among 5 people",
+            amount: 1000,
+            tokenAddress: DAI,
+            paymentDue: Date.now() + TWENTY_FOUR_HRS,
+            category: ExpenseCategory.ACCOMODATION,
+            recipient: {
+                _address: recipient.address,
+                name: "recipient",
+                avatarURL: "",
+            },
+            creator: {
+                _address: creator.address,
+                name: "creator",
+                avatarURL: "",
+            },
+            debtors: [
+                {
+                    _address: debtor1.address,
+                    amount: 200,
+                    tokenAddress: DAI,
+                    name: "debtor1",
+                    avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
+                },
+                {
+                    _address: debtor2.address,
+                    amount: 200,
+                    tokenAddress: WETH9,
+                    name: "debtor2",
+                    avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
+                },
+                {
+                    _address: debtor3.address,
+                    amount: 200,
+                    tokenAddress: USDC,
+                    name: "debtor3",
+                    avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
+                },
+                {
+                    _address: debtor4.address,
+                    amount: 200,
+                    tokenAddress: DAI,
+                    name: "debtor4",
+                    avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
+                },
+                {
+                    _address: debtor5.address,
+                    amount: 200,
+                    tokenAddress: WETH9,
+                    name: "debtor5",
+                    avatarURL: "",
+                    hasPaid: false,
+                    paidAt: 0
+                },
+            ],
+        };
+
+        await SplitContract.connect(creator).createExpense(
+            expenseObj.name,
+            expenseObj.description,
+            expenseObj.amount,
+            expenseObj.tokenAddress,
+            expenseObj.category,
+            expenseObj.paymentDue,
+            expenseObj.recipient,
+            expenseObj.creator,
+            expenseObj.debtors
+        );
+
+        const numberOfOwedExpenses =
+            await SplitContract.getNumberOfOwedExpenses(debtor1.address);
+
+        for (let idx = 0; idx < numberOfOwedExpenses; idx++) {
+            result = await SplitContract.getOwedExpense(debtor1.address, idx);
+
+            expect(result).to.include("Test Bar expense");
+            expect(result).to.include("Spliting expenses among 5 people");
         }
     });
 

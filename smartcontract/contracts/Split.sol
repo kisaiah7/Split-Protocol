@@ -75,8 +75,8 @@ contract Split is Ownable {
         string name;
         string avatarURL;
         uint amount;
-        // bool hasPayed;
-        // uint paidAt;
+        bool hasPaid;
+        uint paidAt;
     }
 
     struct Expense {
@@ -156,6 +156,10 @@ contract Split is Ownable {
         for (uint idx; idx < _debtors.length; idx++) {
             address debtorAddress = _debtors[idx]._address;
 
+            _debtors[idx].hasPaid = false;
+
+            _debtors[idx].paidAt = 0;
+
             require(debtorAddress != address(0), "invalid address debtor or ENS name");
 
             //get number of expense of debtor
@@ -232,8 +236,8 @@ contract Split is Ownable {
         );
     }
 
-    // get debt of address detail
-    function getDebt(address _debtorAddress, uint index)
+    // get owed expenses of address detail
+    function getOwedExpense(address _debtorAddress, uint index)
         external
         view
         notPaused
@@ -241,6 +245,9 @@ contract Split is Ownable {
             string memory,
             string memory,
             ExpenseCategory,
+            uint,
+            bool,
+            uint,
             ExpenseStatus,
             uint,
             uint
@@ -248,11 +255,21 @@ contract Split is Ownable {
     {
         uint expenseIndex = _debtorExpenses[_debtorAddress][index];
         Expense storage expense = _allExpenses[expenseIndex];
+        Debtor memory debtor;
+        for(uint idx; idx < expense.debtors.length; idx++){
+            if(expense.debtors[idx]._address == _debtorAddress){
+                debtor = expense.debtors[idx];
+                break;
+            }
+        }
 
         return (
             expense.name,
             expense.description,
             expense.category,
+            debtor.amount,
+            debtor.hasPaid,
+            debtor.paidAt,
             expense.status,
             expense.paymentDue,
             expense.createdAt
