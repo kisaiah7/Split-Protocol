@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity >=0.7.6;
 pragma abicoder v2;
 
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
@@ -9,23 +9,24 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Swap is Ownable {
     bool _pauseContract = false;
 
-    // set the pool fee to 0.3%.
-    uint24 public constant poolFee = 3000;
-
     // Uniswap router instance
     ISwapRouter public constant swapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     address internal IssuerContract;
 
-    address public constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address public constant WETH9 = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address public constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address USDT_POLYGON_CROSSCHAIN =
+        0xc2132D05D31c914a87C6611C10748AEb04B58e8F;
+    address USDC_POLYGON_CROSSCHAIN =
+        0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
+    address DAI_POLYGON = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
+    address WMATIC_POLYGON = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
+    address FIL_POLYGON = 0xEde1B77C0Ccc45BFa949636757cd2cA7eF30137F;
 
     modifier onlyIssuerContract() {
         require(
             msg.sender == IssuerContract,
-            "Invalid operation. Not authorized"
+            "Invalid operation. Not Issuer"
         );
         _;
     }
@@ -39,70 +40,55 @@ contract Swap is Ownable {
         IssuerContract = _issuerContract;
     }
 
-    function swapExactOutputSingle(
-        uint amountOut,
-        uint amountInMaximum,
-        address _depositorAddress,
-        address fromAssetAddress,
-        address toAssetAddress
-    ) external onlyIssuerContract notPaused returns (uint amountUsed) {
-        require(isValidAssetAddress(fromAssetAddress), "Invalid asset address");
-        require(isValidAssetAddress(toAssetAddress), "Invalid asset address");
-        require(_depositorAddress != address(0), "Invalid _depositorAddress");
-
-        // Transfer `amountInMaximum` from `msg.sender`
+    function swapExactInputSingle(
+        address fromAsset,
+        address toAsset,
+        address sender,
+        address recipient,
+        uint24 poolFee,
+        uint256 amountIn
+    ) external onlyIssuerContract notPaused returns (uint amountOut) {
+        // Transfer the specified amount of fromAsset to this contract
         TransferHelper.safeTransferFrom(
-            fromAssetAddress,
-            msg.sender,
+            fromAsset,
+            sender,
             address(this),
-            amountInMaximum
+            amountIn
         );
 
-        // Approve `swapRouter` to spend `amountInMaximum`
-        TransferHelper.safeApprove(
-            fromAssetAddress,
-            address(swapRouter),
-            amountInMaximum
-        );
+        // Approve the router to spend fromAsset
+        TransferHelper.safeApprove(fromAsset, address(swapRouter), amountIn);
 
-        // Swap configuration struct
-        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
-            .ExactOutputSingleParams({
-                tokenIn: fromAssetAddress,
-                tokenOut: toAssetAddress,
+        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount. This can be  used to set the limit for the price the swap will push the pool to,
+        // which can help protect against price impact or for setting up logic in a variety of price-relevant mechanisms
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+            .ExactInputSingleParams({
+                tokenIn: fromAsset,
+                tokenOut: toAsset,
                 fee: poolFee,
-                recipient: msg.sender,
+                recipient: recipient,
                 deadline: block.timestamp,
-                amountOut: amountOut,
-                amountInMaximum: amountInMaximum,
+                amountIn: amountIn,
+                amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
 
-        // Execute swap and returned the amount used
-        amountUsed = swapRouter.exactOutputSingle(params);
-
-        // if all the amountInMaximum was used up return;
-        if (amountUsed == amountInMaximum) {
-            return amountUsed;
-        }
-
-        //Return remaining amount used to `msg.sender`
-        //Remove swapRouter allowance by setting it to 0
-        TransferHelper.safeApprove(fromAssetAddress, address(swapRouter), 0);
-
-        //Transfer the amount left to the `_depositorAddress` which sent the tokens to the issuer contract
-        TransferHelper.safeTransfer(
-            fromAssetAddress,
-            _depositorAddress,
-            amountInMaximum - amountUsed
-        );
+        // The call to `exactInputSingle` executes the swap.
+        amountOut = swapRouter.exactInputSingle(params);
     }
 
-    function isValidAssetAddress(address _assetAddress) pure returns (bool) {
+    function isValidAssetAddress(address _assetAddress)
+        public
+        view
+        returns (bool)
+    {
         if (
-            _assetAddress == DAI ||
-            _assetAddress == WETH9 ||
-            _assetAddress == USDC
+            _assetAddress == USDT_POLYGON_CROSSCHAIN ||
+            _assetAddress == USDC_POLYGON_CROSSCHAIN ||
+            _assetAddress == DAI_POLYGON ||
+            _assetAddress == WMATIC_POLYGON ||
+            _assetAddress == FIL_POLYGON
         ) {
             return true;
         }

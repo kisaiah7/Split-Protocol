@@ -205,7 +205,6 @@ contract Split is Ownable {
         return _owedExpenseOf[_debtorAddress];
     }
 
-    // get
     function getCreatedExpense(address _creatorAddress, uint index)
         external
         view
@@ -256,6 +255,9 @@ contract Split is Ownable {
         uint expenseIndex = _debtorExpenses[_debtorAddress][index];
         Expense storage expense = _allExpenses[expenseIndex];
         Debtor memory debtor;
+
+        // Doesn't cost gas
+        // But can stopped by miner if it takes too long
         for(uint idx; idx < expense.debtors.length; idx++){
             if(expense.debtors[idx]._address == _debtorAddress){
                 debtor = expense.debtors[idx];
@@ -279,4 +281,5 @@ contract Split is Ownable {
     function pauseContract(bool status) external onlyOwner {
         _pauseContract = status;
     }
+
 }
