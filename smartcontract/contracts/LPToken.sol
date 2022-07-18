@@ -28,11 +28,13 @@ contract LPToken is ERC20, Ownable{
 
     function mintTokens(address _account, uint _amount) external onlyIssuerContract notPaused {
         require(_account != address(0), "Invalid address");
+        require(_amount > 0, "Amount not enough");
         _mint(_account, _amount);
     }
 
     function burnTokens(address _account, uint _amount) external onlyIssuerContract notPaused {
         require(_account != address(0), "Invalid address");
+        require(_amount > 0, "Amount not enough");
         _burn(_account, _amount);
     }
 

@@ -21,7 +21,8 @@ contract Swap is Ownable {
         0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
     address DAI_POLYGON = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
     address WMATIC_POLYGON = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
-    address FIL_POLYGON = 0xEde1B77C0Ccc45BFa949636757cd2cA7eF30137F;
+    address WETH_POLYGON = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+    address WBTC_POLYGON = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;
 
     modifier onlyIssuerContract() {
         require(
@@ -88,7 +89,8 @@ contract Swap is Ownable {
             _assetAddress == USDC_POLYGON_CROSSCHAIN ||
             _assetAddress == DAI_POLYGON ||
             _assetAddress == WMATIC_POLYGON ||
-            _assetAddress == FIL_POLYGON
+            _assetAddress == WETH_POLYGON ||
+            _assetAddress == WBTC_POLYGON
         ) {
             return true;
         }

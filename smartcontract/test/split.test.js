@@ -1,12 +1,6 @@
 const { ethers } = require("hardhat");
 const { expect } = require("chai");
 
-const USDT = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-const DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"; 
-const WFIL = "0xEde1B77C0Ccc45BFa949636757cd2cA7eF30137F";
-const WMATIC = "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889";
-const WETH9 = "0x35Fda92346497D4fBF2dB20fe856374f9E7f69a1";
-const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
 const TWENTY_FOUR_HRS = 24 * 60 * 60 * 1000;
 
 const ExpenseCategory = {
@@ -42,8 +36,19 @@ describe("Split Contract", function () {
         ] = await ethers.getSigners();
         const contract = await ethers.getContractFactory("Split");
         SplitContract = await contract.deploy();
-
         await SplitContract.deployed();
+
+        const lpTokenContract = await ethers.getContractFactory("LPToken");
+        const swapContract = await ethers.getContractFactory("Swap");
+
+        LPTokenContract = await lpTokenContract.deploy(SplitContract.address);
+        await LPTokenContract.deployed();
+
+        SwapContract = await swapContract.deploy(SplitContract.address);
+        await SwapContract.deployed();
+
+        SplitContract.setSwapContractAddress(SwapContract.address);
+        SplitContract.setlpTokenContractAddress(LPTokenContract.address);
     });
 
     it("Should create an expense", async function () {
@@ -51,62 +56,48 @@ describe("Split Contract", function () {
             name: "Test Bar expense",
             description: "Spliting expenses among 5 people",
             amount: 1000,
-            tokenAddress: DAI,
+            tokenAddress: process.env.DAI_POLYGON,
             paymentDue: Date.now() + TWENTY_FOUR_HRS,
             category: ExpenseCategory.ACCOMODATION,
             recipient: {
-                _address: recipient.address,
-                name: "recipient",
-                avatarURL: "",
+                _address: recipient.address
             },
             creator: {
-                _address: creator.address,
-                name: "creator",
-                avatarURL: "",
+                _address: creator.address
             },
             debtors: [
                 {
                     _address: debtor1.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor1",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor2.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor2",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor3.address,
                     amount: 200,
-                    tokenAddress: USDC,
-                    name: "debtor3",
-                    avatarURL: "",
+                    tokenAddress: process.env.USDC_POLYGON_CROSSCHAIN,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor4.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor4",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor5.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor5",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
@@ -150,62 +141,48 @@ describe("Split Contract", function () {
             name: "",
             description: "Spliting expenses among 5 people",
             amount: 1000,
-            tokenAddress: DAI,
+            tokenAddress: process.env.DAI_POLYGON,
             paymentDue: Date.now() + TWENTY_FOUR_HRS,
             category: ExpenseCategory.ACCOMODATION,
             recipient: {
-                _address: recipient.address,
-                name: "recipient",
-                avatarURL: "",
+                _address: recipient.address
             },
             creator: {
-                _address: creator.address,
-                name: "creator",
-                avatarURL: "",
+                _address: creator.address
             },
             debtors: [
                 {
                     _address: debtor1.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor1",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor2.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor2",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor3.address,
                     amount: 200,
-                    tokenAddress: USDC,
-                    name: "debtor3",
-                    avatarURL: "",
+                    tokenAddress: process.env.USDC_POLYGON_CROSSCHAIN,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor4.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor4",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor5.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor5",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
@@ -251,62 +228,48 @@ describe("Split Contract", function () {
             name: "Test Bar expense",
             description: "Spliting expenses among 5 people",
             amount: 0,
-            tokenAddress: DAI,
+            tokenAddress: process.env.DAI_POLYGON,
             paymentDue: Date.now() + TWENTY_FOUR_HRS,
             category: ExpenseCategory.ACCOMODATION,
             recipient: {
                 _address: recipient.address,
-                name: "recipient",
-                avatarURL: "",
             },
             creator: {
                 _address: creator.address,
-                name: "creator",
-                avatarURL: "",
             },
             debtors: [
                 {
                     _address: debtor1.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor1",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor2.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor2",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor3.address,
                     amount: 200,
-                    tokenAddress: USDC,
-                    name: "debtor3",
-                    avatarURL: "",
+                    tokenAddress: process.env.USDC_POLYGON_CROSSCHAIN,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor4.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor4",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor5.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor5",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
@@ -352,62 +315,48 @@ describe("Split Contract", function () {
             name: "Test Bar expense",
             description: "Spliting expenses among 5 people",
             amount: 1000,
-            tokenAddress: DAI,
+            tokenAddress: process.env.DAI_POLYGON,
             paymentDue: Date.now() + TWENTY_FOUR_HRS,
             category: ExpenseCategory.ACCOMODATION,
             recipient: {
                 _address: recipient.address,
-                name: "recipient",
-                avatarURL: "",
             },
             creator: {
                 _address: creator.address,
-                name: "creator",
-                avatarURL: "",
             },
             debtors: [
                 {
                     _address: debtor1.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor1",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor2.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor2",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor3.address,
                     amount: 200,
-                    tokenAddress: USDC,
-                    name: "debtor3",
-                    avatarURL: "",
+                    tokenAddress: process.env.USDC_POLYGON_CROSSCHAIN,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor4.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor4",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor5.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor5",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
@@ -434,7 +383,7 @@ describe("Split Contract", function () {
 
             expect(result).to.include("Test Bar expense");
             expect(result).to.include("Spliting expenses among 5 people");
-            expect(result).to.include(DAI);
+            expect(result).to.include(process.env.DAI_POLYGON);
         }
     });
 
@@ -443,13 +392,11 @@ describe("Split Contract", function () {
             name: "Test Bar expense",
             description: "Spliting expenses among 5 people",
             amount: 1000,
-            tokenAddress: DAI,
+            tokenAddress: process.env.DAI_POLYGON,
             paymentDue: Date.now() + TWENTY_FOUR_HRS,
             category: ExpenseCategory.ACCOMODATION,
             recipient: {
                 _address: recipient.address,
-                name: "recipient",
-                avatarURL: "",
             },
             creator: {
                 _address: creator.address,
@@ -460,45 +407,35 @@ describe("Split Contract", function () {
                 {
                     _address: debtor1.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor1",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor2.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor2",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor3.address,
                     amount: 200,
-                    tokenAddress: USDC,
-                    name: "debtor3",
-                    avatarURL: "",
+                    tokenAddress: process.env.USDC_POLYGON_CROSSCHAIN,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor4.address,
                     amount: 200,
-                    tokenAddress: DAI,
-                    name: "debtor4",
-                    avatarURL: "",
+                    tokenAddress: process.env.DAI_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
                 {
                     _address: debtor5.address,
                     amount: 200,
-                    tokenAddress: WETH9,
-                    name: "debtor5",
-                    avatarURL: "",
+                    tokenAddress: process.env.WETH_POLYGON,
                     hasPaid: false,
                     paidAt: 0
                 },
