@@ -2,31 +2,31 @@
 
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
 
-
 ### Features
-- Create Expense
-- Get number of expense created by an address
-- Get created expense of an address
-- Get number of debt of an address
-- Get debt of an address
+
+-   Create Expense
+-   Get number of expense created by an address
+-   Get created expense of an address
+-   Get number of debt of an address
+-   Get debt of an address
 
 ### Todo
-- asset payment
-- asset withdrawal
 
-### Setting up 
+-   asset payment
+-   asset withdrawal
 
-- Install dependencies
-    
+### Setting up
+
+-   Install dependencies
+
     `npm install` or `yarn `
 
-- Create a .env file and add the following variables
+-   Create a .env file and add the following variables
 
-    - ALCHEMY_API_KEY_URL = "Host node url"
-    - MUMBAI_PRIVATE_KEY = "polygon mumbai wallet private key"
+    -   ALCHEMY_API_KEY_URL = "Host node url"
+    -   MUMBAI_PRIVATE_KEY = "polygon mumbai wallet private key"
 
-
-- Try running some of the following tasks:
+-   Try running some of the following tasks:
 
     ```shell
     npx hardhat help
@@ -40,9 +40,10 @@ This project demonstrates a basic Hardhat use case. It comes with a sample contr
 
 Abi and contract address can be found in /abis folder as `<ContractName>.json` where `<ContractName>` is the name of the contract.
 
-
 ### Available contract methods
-- Create Expense
+
+-   Create Expense
+
     ```
         function createExpense(
             string _name,
@@ -57,16 +58,18 @@ Abi and contract address can be found in /abis folder as `<ContractName>.json` w
         ): void
     ```
 
- - Get number of expense created by an address
+-   Get number of expense created by an address
     ```
         getNumberOfCreatedExpenses(string _creatorAddress): BigNumber
     ```
- - Get created expense of an address
+-   Get created expense of an address
+
     ```
         getNumberOfOwedExpenses(string _debtorAddress): BigNumber
     ```
 
- - Get number of debt of an address
+-   Get number of debt of an address
+
     ```
         getCreatedExpense(address _creatorAddress, BigNumber index): Array[
             string name,
@@ -80,7 +83,7 @@ Abi and contract address can be found in /abis folder as `<ContractName>.json` w
         ]
     ```
 
- - Get debt of an address
+-   Get debt of an address
     ```
         function getOwedExpense(address _debtorAddress, BigNumber index): Array[
             string name ,
@@ -93,5 +96,11 @@ Abi and contract address can be found in /abis folder as `<ContractName>.json` w
             BigNumber paymentDue,
             BigNumber createdA
         ]
-    
+
+    ```
+
+-   Pay debt
+    To execute this function first SwapContract address must be approved to spend `amountIn` of senders address on `fromAssetAddress` asset contract. 
+    ```
+        function payDebt( string fromAssetAddress, Number poolFee, Number amountIn, Number addressExpenseIndex) : void
     ```
