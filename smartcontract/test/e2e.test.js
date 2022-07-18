@@ -774,26 +774,10 @@ describe("Integrated Testing", function () {
             ),
         ]);
 
-        const amountOut = await recipientTokenContract.balanceOf(
-            SplitContract.address
+        const amountReceived = await recipientTokenContract.balanceOf(
+            recipient.address
         );
 
-        const [
-            recipientLpTokens,
-            debtor1LpToken,
-            debtor2LpToken,
-            debtor3LpToken,
-            debtor4LpToken,
-            debtor5LpToken,
-        ] = await Promise.all([
-            LPTokenContract.balanceOf(recipient.address),
-            LPTokenContract.balanceOf(debtor1.address),
-            LPTokenContract.balanceOf(debtor2.address),
-            LPTokenContract.balanceOf(debtor3.address),
-            LPTokenContract.balanceOf(debtor4.address),
-            LPTokenContract.balanceOf(debtor5.address),
-        ]);
-
-        expect(amountOut).to.equal(recipientLpTokens);
+        expect(amountReceived ).to.greaterThan(0);
     });
 });

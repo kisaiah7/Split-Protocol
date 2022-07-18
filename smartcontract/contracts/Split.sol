@@ -4,10 +4,10 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./LPToken.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./Swap.sol";
 
-contract Split is Ownable{
+contract Split is Ownable {
     using Counters for Counters.Counter;
 
     event ExpenseCreated(
@@ -75,9 +75,15 @@ contract Split is Ownable{
         address _address;
     }
 
+    struct DebtParticipant {
+        address _address;
+        uint amount;
+    }
+
     struct Debtor {
         address _address;
         uint amount;
+        uint amountOut;
         bool hasPaid;
         uint paidAt;
     }
@@ -88,6 +94,7 @@ contract Split is Ownable{
         ExpenseCategory category;
         address token;
         uint amount;
+        uint amountPaid;
         uint paymentDue;
         uint createdAt;
         ExpenseStatus status;
@@ -118,13 +125,13 @@ contract Split is Ownable{
         uint _paymentDue,
         Participant memory _recipient,
         Participant memory _creator,
-        Debtor[] memory _debtors
+        DebtParticipant[] memory _debtors
     ) public notPaused {
         //data validation
         require(bytes(_name).length > 0, "Expense name is required");
         require(_amount > 0, "amount must be greater than 0");
         require(
-            Swap(_swapContractAddress).isValidAssetAddress( _tokenAddress ),
+            Swap(_swapContractAddress).isValidAssetAddress(_tokenAddress),
             "Invalid token address or ENS names"
         );
         require(
@@ -146,6 +153,7 @@ contract Split is Ownable{
         expense.category = _category;
         expense.status = ExpenseStatus.PENDING;
         expense.paymentDue = _paymentDue;
+        expense.amountPaid = 0;
 
         address creatorAddress = _creator._address;
 
@@ -165,10 +173,6 @@ contract Split is Ownable{
         for (uint idx; idx < _debtors.length; idx++) {
             address debtorAddress = _debtors[idx]._address;
 
-            _debtors[idx].hasPaid = false;
-
-            _debtors[idx].paidAt = 0;
-
             require(
                 debtorAddress != address(0),
                 "invalid address debtor or ENS name"
@@ -184,7 +188,15 @@ contract Split is Ownable{
             _debtorExpenses[debtorAddress][numberOfOwedExpense] = expenseIndex;
 
             // append debtor expense list of debtors
-            expense.debtors.push(_debtors[idx]);
+            expense.debtors.push(
+                Debtor({
+                    _address: debtorAddress,
+                    amount: _debtors[idx].amount,
+                    hasPaid: false,
+                    paidAt: 0,
+                    amountOut: 0
+                })
+            );
         }
 
         _expenseIndex.increment();
@@ -253,9 +265,14 @@ contract Split is Ownable{
         uint256 amountIn,
         uint index
     ) external {
-        require(Swap(_swapContractAddress).isValidAssetAddress(fromAsset), "Invalid asset address");
+        require(
+            Swap(_swapContractAddress).isValidAssetAddress(fromAsset),
+            "Invalid asset address"
+        );
         require(poolFee > 0, "Pool fee is not enough");
         require(amountIn > 0, "Amount sent is not enough");
+
+        Swap swapContract = Swap(_swapContractAddress);
 
         uint expenseIndex = _debtorExpenses[msg.sender][index];
         Expense storage expense = _allExpenses[expenseIndex];
@@ -266,20 +283,47 @@ contract Split is Ownable{
         //TODO: check to see required amount is available in the pool
 
         //swap asset to tagert asset and store on contract
-        uint amountOut = Swap(_swapContractAddress).swapExactInputSingle(fromAsset, expense.token, msg.sender, address(this), poolFee, amountIn);
+        uint amountOut = swapContract.swapExactInputSingle(
+            fromAsset,
+            expense.token,
+            msg.sender,
+            address(this),
+            poolFee,
+            amountIn
+        );
 
-        // issue tokens to both recipient and sender in a 1:1 ratio
-        LPToken(_lpTokenContractAddress).mintTokens(msg.sender, amountOut);
-        LPToken(_lpTokenContractAddress).mintTokens(expense.recipient._address, amountOut);
+        debtor.amountOut += amountOut;
+        expense.amountPaid += amountOut;
 
-        if(LPToken(_lpTokenContractAddress).balanceOf(debtor._address) >= debtor.amount){
+        if (debtor.amountOut >= debtor.amount) {
             debtor.hasPaid = true;
         }
 
         debtor.paidAt = block.timestamp;
 
-        emit DebtorPaid(expenseIndex, expense.recipient._address, msg.sender, amountOut);
+        // if full amount has been collected, pay recipient
+        if (expense.amountPaid >= expense.amount) {
 
+            // clean paid amount record of all expense debtors
+            for (uint idx; idx < expense.debtors.length; idx++) {
+                expense.debtors[idx].amountOut = 0;
+            }
+
+            uint totalCollectedAmount = expense.amountPaid;
+            expense.amountPaid = 0;
+
+            ERC20(expense.token).transfer(
+                expense.recipient._address,
+                totalCollectedAmount
+            );
+        }
+
+        emit DebtorPaid(
+            expenseIndex,
+            expense.recipient._address,
+            msg.sender,
+            amountOut
+        );
     }
 
     // get owed expenses detail of address
@@ -301,7 +345,7 @@ contract Split is Ownable{
     {
         uint expenseIndex = _debtorExpenses[_debtorAddress][index];
         Expense storage expense = _allExpenses[expenseIndex];
-        
+
         uint debtIndex = getDebt(expenseIndex, _debtorAddress);
         Debtor storage debtor = expense.debtors[debtIndex];
 
@@ -320,8 +364,11 @@ contract Split is Ownable{
         );
     }
 
-    function getDebt(uint expenseId, address _debtorAddress) public view returns (uint){
-        
+    function getDebt(uint expenseId, address _debtorAddress)
+        public
+        view
+        returns (uint)
+    {
         Expense storage expense = _allExpenses[expenseId];
 
         // Doesn't cost gas in a view function.
@@ -342,6 +389,7 @@ contract Split is Ownable{
         require(_address != address(0), "Swap contract address cannot be 0x0");
         _swapContractAddress = _address;
     }
+
     function setlpTokenContractAddress(address _address) external onlyOwner {
         require(_address != address(0), "Swap contract address cannot be 0x0");
         _lpTokenContractAddress = _address;
