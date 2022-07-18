@@ -13,18 +13,26 @@ import TextArea from '../../components/text-area';
 import Button from '../../components/button';
 import Heading from '../../components/heading';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useContract, useProvider, useSigner } from 'wagmi';
+import { abi as splitProtocolABI } from '../../utils/abis/Split.json';
 
-type FormData = {
+enum ExpenseCategory {
+  ACCOMODATION = 'accomodation',
+  TRANSPORTATION = 'transportation',
+  FOOD = 'food',
+  MISC = 'misc',
+}
+
+interface FormData {
   name: string;
   description: string;
-  category: string;
+  category: ExpenseCategory | '';
   token: string;
   amount: number;
   paymentDue: number;
   recipientAddress: string;
   debtors: Debtor[];
-};
+}
 
 const Expense: NextPage = () => {
   const { address } = useAccount();
@@ -42,6 +50,12 @@ const Expense: NextPage = () => {
         amount: 0,
       },
     ],
+  });
+  const { data: signer } = useSigner();
+  const contract = useContract({
+    addressOrName: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!,
+    contractInterface: splitProtocolABI,
+    signerOrProvider: signer,
   });
 
   useEffect(() => {
@@ -99,12 +113,55 @@ const Expense: NextPage = () => {
     });
   };
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    // TODO backend call
-
-    console.log(formData);
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    try {
+      event.preventDefault();
+      const {
+        name,
+        description,
+        amount,
+        category,
+        paymentDue,
+        recipientAddress,
+        debtors,
+      } = formData;
+      // USDT token address. Selected one from the form should be used at a later point in time.
+      const tokenAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
+      const categoryIndex = Object.values(ExpenseCategory).findIndex(
+        (expenseCategory) => expenseCategory === category
+      );
+      const recipient = {
+        _address: recipientAddress,
+        name: 'recipient',
+        avatarURL: 'url',
+      };
+      const creator = {
+        _address: address,
+        name: 'creator',
+        avatarURL: 'url',
+      };
+      const apiDebtors = debtors.map(({ address, amount }) => ({
+        _address: address,
+        name: 'debtor',
+        avatarURL: 'url',
+        amount,
+        hasPaid: false,
+        paidAt: 0,
+      }));
+      await contract.createExpense(
+        name,
+        description,
+        amount,
+        tokenAddress,
+        categoryIndex,
+        paymentDue,
+        recipient,
+        creator,
+        apiDebtors
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -172,7 +229,9 @@ const Expense: NextPage = () => {
                   <Select
                     name="category"
                     placeholder="Choose..."
-                    options={['Accommodation']}
+                    options={Object.values(ExpenseCategory).map(
+                      (category) => category
+                    )}
                     value={formData.category}
                     onChange={onChange}
                   />
