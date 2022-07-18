@@ -13,17 +13,21 @@ import TextArea from '../../components/text-area';
 import Button from '../../components/button';
 import Heading from '../../components/heading';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { useAccount, useContract, useProvider, useSigner } from 'wagmi';
-import { abi as splitProtocolABI } from '../../utils/abis/Split.json';
+import { useAccount, useContract, useSigner } from 'wagmi';
+import splitContract from '../../utils/abis/Split.json';
+import expenseService from '../../services/mocks/expenses';
+import Router from 'next/router';
+import { toast } from 'react-toastify';
+import Loader from '../../components/loader';
 
-enum ExpenseCategory {
+export enum ExpenseCategory {
   ACCOMODATION = 'accomodation',
   TRANSPORTATION = 'transportation',
   FOOD = 'food',
   MISC = 'misc',
 }
 
-interface FormData {
+export interface FormData {
   name: string;
   description: string;
   category: ExpenseCategory | '';
@@ -35,6 +39,7 @@ interface FormData {
 }
 
 const Expense: NextPage = () => {
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const { address } = useAccount();
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -54,7 +59,7 @@ const Expense: NextPage = () => {
   const { data: signer } = useSigner();
   const contract = useContract({
     addressOrName: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!,
-    contractInterface: splitProtocolABI,
+    contractInterface: splitContract.abi,
     signerOrProvider: signer,
   });
 
@@ -115,50 +120,22 @@ const Expense: NextPage = () => {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
+      if (!address) throw new Error('No active wallet connection');
+      setSubmitLoading(true);
       event.preventDefault();
-      const {
-        name,
-        description,
-        amount,
-        category,
-        paymentDue,
-        recipientAddress,
-        debtors,
-      } = formData;
-      // USDT token address. Selected one from the form should be used at a later point in time.
-      const tokenAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
-      const categoryIndex = Object.values(ExpenseCategory).findIndex(
-        (expenseCategory) => expenseCategory === category
+
+      const res = await expenseService.createExpense(
+        address,
+        contract,
+        formData
       );
-      const recipient = {
-        _address: recipientAddress,
-        name: 'recipient',
-        avatarURL: 'url',
-      };
-      const creator = {
-        _address: address,
-        name: 'creator',
-        avatarURL: 'url',
-      };
-      const apiDebtors = debtors.map(({ address, amount }) => ({
-        _address: address,
-        name: 'debtor',
-        avatarURL: 'url',
-        amount,
-        hasPaid: false,
-        paidAt: 0,
-      }));
-      await contract.createExpense(
-        name,
-        description,
-        amount,
-        tokenAddress,
-        categoryIndex,
-        paymentDue,
-        recipient,
-        creator,
-        apiDebtors
-      );
+      if (res < 0) {
+        toast.error('Error creating expense');
+      } else {
+        toast.success('New expense created. Redirecting...');
+      }
+      Router.push(`/expense/view`);
+      setSubmitLoading(false);
     } catch (err) {
       console.error(err);
     }
@@ -167,129 +144,135 @@ const Expense: NextPage = () => {
   return (
     <RequireAuth>
       <div className="h-full bg-body-gradient pb-20 flex">
-        <div className="container mx-auto mt-10">
-          <Heading type="secondary">Create a shared expense</Heading>
-          <form
-            className="rounded-md bg-secondary p-16 mt-8 flex flex-col gap-8"
-            onSubmit={onSubmit}
-          >
-            <div className="grid grid-cols-2 gap-4">
+        {!submitLoading ? (
+          <div className="container mx-auto mt-10">
+            <Heading type="secondary">Create a shared expense</Heading>
+            <form
+              className="rounded-md bg-secondary p-16 mt-8 flex flex-col gap-8"
+              onSubmit={onSubmit}
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <FormGroup
+                  label="Name"
+                  className="col-span-2"
+                  formControl={
+                    <Input
+                      name="name"
+                      value={formData.name}
+                      placeholder="Holiday villa"
+                      onChange={onChange}
+                    />
+                  }
+                />
+                <FormGroup
+                  label="Recipient"
+                  className="col-span-2"
+                  formControl={
+                    <Input
+                      name="recipientAddress"
+                      value={formData.recipientAddress}
+                      placeholder="villas-on-mallorca.eth"
+                      onChange={onChange}
+                    />
+                  }
+                />
+                <FormGroup
+                  label="Recipient token"
+                  formControl={
+                    <Select
+                      name="token"
+                      placeholder="Choose..."
+                      options={['usdt']}
+                      value={formData.token}
+                      onChange={onChange}
+                    />
+                  }
+                />
+                <FormGroup
+                  label="Total amount"
+                  formControl={
+                    <Input
+                      name="amount"
+                      value={formData.amount.toString()}
+                      placeholder="4000"
+                      type="number"
+                      onChange={onChange}
+                    />
+                  }
+                />
+                <FormGroup
+                  label="Category"
+                  className="col-span-2"
+                  formControl={
+                    <Select
+                      name="category"
+                      placeholder="Choose..."
+                      options={Object.values(ExpenseCategory).map(
+                        (category) => category
+                      )}
+                      value={formData.category}
+                      onChange={onChange}
+                    />
+                  }
+                />
+                <FormGroup
+                  label="Description"
+                  className="col-span-2"
+                  formControl={
+                    <TextArea
+                      name="description"
+                      value={formData.description}
+                      placeholder="Lorem ipsum dolor sit amet..."
+                      onChange={onChange}
+                    />
+                  }
+                />
+              </div>
+              <div>
+                <Heading type="tertiary">Debtors</Heading>
+                <ul className="flex flex-col gap-4 mt-4">
+                  {formData.debtors.map((debtor, index) => (
+                    <DebtorListItem
+                      key={index}
+                      debtor={debtor}
+                      isRemovable={index !== 0}
+                      onClickRemoveButton={() => removeDebtor(index)}
+                      onChange={(changedDebtor) =>
+                        onChangeDebtor(index, changedDebtor)
+                      }
+                    />
+                  ))}
+                </ul>
+                <Button
+                  Icon={PlusIcon}
+                  label="Add debtor"
+                  theme="condensed"
+                  className="mt-4"
+                  onClick={addDebtor}
+                />
+              </div>
               <FormGroup
-                label="Name"
-                className="col-span-2"
+                label="Payment due"
                 formControl={
                   <Input
-                    name="name"
-                    value={formData.name}
-                    placeholder="Holiday villa"
-                    onChange={onChange}
-                  />
-                }
-              />
-              <FormGroup
-                label="Recipient"
-                className="col-span-2"
-                formControl={
-                  <Input
-                    name="recipientAddress"
-                    value={formData.recipientAddress}
-                    placeholder="villas-on-mallorca.eth"
-                    onChange={onChange}
-                  />
-                }
-              />
-              <FormGroup
-                label="Recipient token"
-                formControl={
-                  <Select
-                    name="token"
-                    placeholder="Choose..."
-                    options={['usdt']}
-                    value={formData.token}
-                    onChange={onChange}
-                  />
-                }
-              />
-              <FormGroup
-                label="Total amount"
-                formControl={
-                  <Input
-                    name="amount"
-                    value={formData.amount.toString()}
-                    placeholder="4000"
+                    name="paymentDue"
+                    value={formData.paymentDue.toString()}
+                    placeholder="2022-07-15"
                     type="number"
                     onChange={onChange}
                   />
                 }
               />
-              <FormGroup
-                label="Category"
-                className="col-span-2"
-                formControl={
-                  <Select
-                    name="category"
-                    placeholder="Choose..."
-                    options={Object.values(ExpenseCategory).map(
-                      (category) => category
-                    )}
-                    value={formData.category}
-                    onChange={onChange}
-                  />
-                }
-              />
-              <FormGroup
-                label="Description"
-                className="col-span-2"
-                formControl={
-                  <TextArea
-                    name="description"
-                    value={formData.description}
-                    placeholder="Lorem ipsum dolor sit amet..."
-                    onChange={onChange}
-                  />
-                }
-              />
-            </div>
-            <div>
-              <Heading type="tertiary">Debtors</Heading>
-              <ul className="flex flex-col gap-4 mt-4">
-                {formData.debtors.map((debtor, index) => (
-                  <DebtorListItem
-                    key={index}
-                    debtor={debtor}
-                    isRemovable={index !== 0}
-                    onClickRemoveButton={() => removeDebtor(index)}
-                    onChange={(changedDebtor) =>
-                      onChangeDebtor(index, changedDebtor)
-                    }
-                  />
-                ))}
-              </ul>
-              <Button
-                Icon={PlusIcon}
-                label="Add debtor"
-                theme="condensed"
-                className="mt-4"
-                onClick={addDebtor}
-              />
-            </div>
-            <FormGroup
-              label="Payment due"
-              formControl={
-                <Input
-                  name="paymentDue"
-                  value={formData.paymentDue.toString()}
-                  placeholder="2022-07-15"
-                  type="number"
-                  onChange={onChange}
-                />
-              }
-            />
-            <div className="flex justify-end">
-              <Button label="Confirm" Icon={CheckIcon} type="submit" />
-            </div>
-          </form>
-        </div>
+              <div className="flex justify-end">
+                <Button label="Confirm" Icon={CheckIcon} type="submit" />
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div style={{ minHeight: '70vh' }}>
+            <Loader />
+          </div>
+        )}
       </div>
     </RequireAuth>
   );

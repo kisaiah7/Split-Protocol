@@ -3,6 +3,8 @@ import 'tailwindcss/tailwind.css';
 import type { AppProps } from 'next/app';
 import Layout from '../components/layout';
 import AuthProvider from '../components/auth-provider';
+import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 import '@rainbow-me/rainbowkit/styles.css';
 import {
@@ -38,6 +40,7 @@ const wagmiClient = createClient({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
+      <ToastContainer />
       <RainbowKitProvider
         chains={chains}
         theme={darkTheme({
