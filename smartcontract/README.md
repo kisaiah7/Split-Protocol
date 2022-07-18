@@ -9,10 +9,10 @@ This project demonstrates a basic Hardhat use case. It comes with a sample contr
 -   Get created expense of an address
 -   Get number of debt of an address
 -   Get debt of an address
+-   asset swap and payment to recipient
 
 ### Todo
 
--   asset payment
 -   asset withdrawal
 
 ### Setting up
