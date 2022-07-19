@@ -1,0 +1,5 @@
+1) npx hardhat node --hostname 0.0.0.0
+2) sh docker.sh
+
+
+graphprotocol/graph-node:v0.22.0

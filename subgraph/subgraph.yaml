@@ -1,5 +1,10 @@
 specVersion: 0.0.4
 description: Split-Protocal
+features:
+  - nonFatalErrors
+  - fullTextSearch
+  - grafting
+  - ipfsOnEthereumContracts
 repository: https://github.com/yanghakim/Split-Protocol.git
 schema:
   file: ./schema.graphql
@@ -8,7 +13,7 @@ dataSources:
     name: Split
     network: mainnet
     source:
-      address: '0x2E645469f354BB4F5c8a05B3b30A929361cf77eC'
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3'
       abi: Split
     mapping:
       kind: ethereum/events
@@ -18,14 +23,17 @@ dataSources:
         - ExpenseCreated
         - DebtorPaid
         - ExpenseCancelled
+        - RecipientPaid
       abis:
         - name: Split
           file: ./abis/Split.json
       eventHandlers:
-        - event: ExpenseCreated(indexed uint256,indexed address,indexed address,uint256)
+        - event: ExpenseCreated(indexed uint256,uint8,uint8,indexed address,string,string,uint256)
           handler: handleExpenseCreated
         - event: DebtorPaid(indexed uint256,indexed address,indexed address,uint256)
           handler: handleDebtorPaid
-        - event: ExpenseCancelled(indexed uint256,indexed address,indexed address,uint256)
+        - event: ExpenseCancelled(indexed uint256,indexed address,indexed address)
           handler: handleExpenseCancelled
+        - event: RecipientPaid(indexed uint256,indexed address)
+          handler: handleRecipientPaid
       file: ./src/mapping.ts

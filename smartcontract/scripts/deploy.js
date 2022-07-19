@@ -22,6 +22,8 @@ const storeContractData = (contract, contractName) => {
 
   const contractArtiacts = artifacts.readArtifactSync(contractName);
 
+  console.log("Split contract deployed to:", contract.address)
+  
   fs.writeFileSync(
     contractDir + `/${contractName}.json`,
     JSON.stringify({ address: contract.address, ...contractArtiacts }, null, 2)

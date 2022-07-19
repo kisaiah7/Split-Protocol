@@ -1,5 +1,9 @@
 {
   "name": "hardhat-project",
+  "scripts": {
+    "zeroNode": "npx hardhat node --hostname  0.0.0.0",
+    "deploy:local": "npx hardhat run --network localhost scripts/deploy.js"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.1",
     "dotenv": "^16.0.1",
@@ -10,3 +14,5 @@
     "@uniswap/v3-periphery": "^1.4.1"
   }
 }
+
+
