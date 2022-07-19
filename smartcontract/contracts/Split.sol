@@ -12,14 +12,12 @@ contract Split is Ownable {
 
     event ExpenseCreated(
         uint indexed index,
+        uint8 category,
+        uint8 status,
         address indexed creator,
-        address indexed recipient,
         string name,
         string description,
-        uint category,
-        uint status,
-        uint amount,
-        uint amountPaid
+        uint amount
     );
 
     event DebtorPaid(
@@ -122,6 +120,8 @@ contract Split is Ownable {
         _;
     }
 
+    /// creates a new expense
+    ///@dev function stack almost too deep
     function createExpense(
         string memory _name,
         string memory _description,
@@ -161,18 +161,13 @@ contract Split is Ownable {
         expense.paymentDue = _paymentDue;
         expense.amountPaid = 0;
 
-        address creatorAddress = _creator._address;
-
-        // get number of expenses created by `_creator`
-        uint numberOfCreatorExpenses = _createdExpenseOf[creatorAddress];
+        // assign expense index to creator
+        _creatorExpenses[_creator._address][
+            _createdExpenseOf[_creator._address] // number of expenses created by `_creator._address`
+        ] = expenseIndex;
 
         // increase the creators number of created expenses
-        _createdExpenseOf[creatorAddress] += 1;
-
-        // assign expense index to creator
-        _creatorExpenses[creatorAddress][
-            numberOfCreatorExpenses
-        ] = expenseIndex;
+        _createdExpenseOf[_creator._address] += 1;
 
         // Implicit memory to storage conversion is not supported
         // so we do it manually
@@ -209,14 +204,12 @@ contract Split is Ownable {
 
         emit ExpenseCreated(
             expenseIndex,
+            uint8(_category),
+            uint8(expense.status),
             _creator._address,
-            _recipient._address,
             _name,
             _description,
-            uint(_category),
-            uint(expense.status),
-            _amount,
-            expense.amountPaid
+            _amount
         );
     }
 
@@ -398,10 +391,5 @@ contract Split is Ownable {
     function setSwapContractAddress(address _address) external onlyOwner {
         require(_address != address(0), "Swap contract address cannot be 0x0");
         _swapContractAddress = _address;
-    }
-
-    function setlpTokenContractAddress(address _address) external onlyOwner {
-        require(_address != address(0), "Swap contract address cannot be 0x0");
-        _lpTokenContractAddress = _address;
     }
 }

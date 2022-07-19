@@ -20,7 +20,6 @@ describe("Integrated Testing", function () {
     let SplitContract;
     let SwapContract;
     let mockSwapContract;
-    let LPTokenContract;
     let wrappedMaticContract;
 
     let owner;
@@ -64,14 +63,11 @@ describe("Integrated Testing", function () {
         ] = await ethers.getSigners();
 
         const splitContract = await ethers.getContractFactory("Split");
-        const lpTokenContract = await ethers.getContractFactory("LPToken");
         const swapContract = await ethers.getContractFactory("Swap");
 
         SplitContract = await splitContract.deploy();
         await SplitContract.deployed();
 
-        LPTokenContract = await lpTokenContract.deploy(SplitContract.address);
-        await LPTokenContract.deployed();
 
         SwapContract = await swapContract.deploy(SplitContract.address);
         await SwapContract.deployed();
@@ -80,7 +76,6 @@ describe("Integrated Testing", function () {
         await mockSwapContract.deployed();
 
         SplitContract.setSwapContractAddress(SwapContract.address);
-        SplitContract.setlpTokenContractAddress(LPTokenContract.address);
 
         recipientTokenContract = await ethers.getContractAt(
             "IERC20",

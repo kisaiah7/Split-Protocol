@@ -38,17 +38,12 @@ describe("Split Contract", function () {
         SplitContract = await contract.deploy();
         await SplitContract.deployed();
 
-        const lpTokenContract = await ethers.getContractFactory("LPToken");
         const swapContract = await ethers.getContractFactory("Swap");
-
-        LPTokenContract = await lpTokenContract.deploy(SplitContract.address);
-        await LPTokenContract.deployed();
 
         SwapContract = await swapContract.deploy(SplitContract.address);
         await SwapContract.deployed();
 
         SplitContract.setSwapContractAddress(SwapContract.address);
-        SplitContract.setlpTokenContractAddress(LPTokenContract.address);
     });
 
     it("Should create an expense", async function () {
