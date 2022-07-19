@@ -36,6 +36,8 @@ This project demonstrates a basic Hardhat use case. It comes with a sample contr
     npx hardhat run scripts/deploy.js --network mumbai
     ```
 
+-   Please read [this to connect metamask to hardhat node network](https://support.chainstack.com/hc/en-us/articles/4408642503449-Using-MetaMask-with-a-Hardhat-node)
+
 ### Using ABI and contract addresses
 
 Abi and contract address can be found in /abis folder as `<ContractName>.json` where `<ContractName>` is the name of the contract.
