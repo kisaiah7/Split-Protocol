@@ -1,23 +1,23 @@
-import type { NextPage } from 'next';
+import type { NextPage } from "next";
 // @ts-ignore
-import PlusIcon from '../../public/plus-icon.svg?inline';
+import PlusIcon from "../../public/plus-icon.svg?inline";
 // @ts-ignore
-import CheckIcon from '../../public/check-icon.svg?inline';
-import RequireAuth from '../../components/require-auth';
-import FormGroup from '../../components/form-group';
-import Input from '../../components/input';
-import Select from '../../components/select';
-import DebtorListItem from '../../components/debtor-list-item';
-import Debtor from '../../models/debtor';
-import TextArea from '../../components/text-area';
-import Button from '../../components/button';
-import Heading from '../../components/heading';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
-import expenseService from '../../services/mocks/expenses';
-import Router from 'next/router'
-import { toast } from 'react-toastify';
-import Loader from '../../components/loader';
+import CheckIcon from "../../public/check-icon.svg?inline";
+import RequireAuth from "../../components/require-auth";
+import FormGroup from "../../components/form-group";
+import Input from "../../components/input";
+import Select from "../../components/select";
+import DebtorListItem from "../../components/debtor-list-item";
+import Debtor from "../../models/debtor";
+import TextArea from "../../components/text-area";
+import Button from "../../components/button";
+import Heading from "../../components/heading";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import expenseService from "../../services/mocks/expenses";
+import Router from "next/router";
+import { toast } from "react-toastify";
+import Loader from "../../components/loader";
 
 export type FormData = {
   name: string;
@@ -34,16 +34,16 @@ const Expense: NextPage = () => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const { address } = useAccount();
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    description: '',
-    category: '',
-    token: '',
+    name: "",
+    description: "",
+    category: "",
+    token: "",
     amount: 0,
     paymentDue: 0,
-    recipientAddress: '',
+    recipientAddress: "",
     debtors: [
       {
-        address: address ?? '',
+        address: address ?? "",
         amount: 0,
       },
     ],
@@ -65,7 +65,7 @@ const Expense: NextPage = () => {
       debtors: [
         ...formData.debtors,
         {
-          address: '',
+          address: "",
           amount: 0,
         },
       ],
@@ -87,7 +87,7 @@ const Expense: NextPage = () => {
     setFormData({
       ...formData,
       [name]:
-        name === 'amount' || name === 'paymentDue'
+        name === "amount" || name === "paymentDue"
           ? value
             ? parseInt(value)
             : 0
@@ -123,7 +123,7 @@ const Expense: NextPage = () => {
   return (
     <RequireAuth>
       <div className="h-full bg-body-gradient pb-20 flex">
-        {!submitLoading ?
+        {!submitLoading ? (
           <div className="container mx-auto mt-10">
             <Heading type="secondary">Create a shared expense</Heading>
             <form
@@ -161,7 +161,7 @@ const Expense: NextPage = () => {
                     <Select
                       name="token"
                       placeholder="Choose..."
-                      options={['usdt']}
+                      options={["usdt", "eth"]}
                       value={formData.token}
                       onChange={onChange}
                     />
@@ -186,7 +186,12 @@ const Expense: NextPage = () => {
                     <Select
                       name="category"
                       placeholder="Choose..."
-                      options={['Accommodation']}
+                      options={[
+                        "Accommodation",
+                        "Transportation",
+                        "Food and Drinks",
+                        "Misc",
+                      ]}
                       value={formData.category}
                       onChange={onChange}
                     />
@@ -245,10 +250,11 @@ const Expense: NextPage = () => {
               </div>
             </form>
           </div>
-          :
-          <div style={{ minHeight: '70vh' }}>
+        ) : (
+          <div style={{ minHeight: "70vh" }}>
             <Loader />
-          </div>}
+          </div>
+        )}
       </div>
     </RequireAuth>
   );

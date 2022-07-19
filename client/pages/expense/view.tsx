@@ -12,6 +12,7 @@ import { useEffectOnce } from "../../hooks/use-effect-once";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import Loader from "../../components/loader";
+import Pay from "../../components/pay";
 
 const View: NextPage = () => {
   const [state, setState] = useState<AsyncState<ExpenseModel>>({
@@ -22,6 +23,7 @@ const View: NextPage = () => {
 
   const [bgColor, setBgColor] = useState("bg-misc-gradient");
   const [bgIcon, setBgIcon] = useState(coinsIcon);
+  const [viewPayForm, togglePayForm] = useState(false);
 
   useEffectOnce(() => {
     setState({ data: undefined, loading: true, error: undefined });
@@ -39,6 +41,10 @@ const View: NextPage = () => {
     };
     fetchData();
   });
+
+  const toggleViewPayForm = () => {
+    togglePayForm((prevState) => !prevState);
+  };
 
   const { data: expense, loading, error } = state;
 
@@ -71,6 +77,7 @@ const View: NextPage = () => {
     <div className="h-screen bg-body-gradient flex flex-col items-center justify-center">
       {!loading && expense ? (
         <>
+          {viewPayForm ? <Pay toggleViewPayForm={toggleViewPayForm} /> : ""}
           <div className="container flex flex-row items-end">
             <div
               className={`rounded-lg w-96 h-64 flex items-center justify-center ${bgColor}`}
@@ -147,7 +154,9 @@ const View: NextPage = () => {
                   width={24}
                   height={24}
                 />
-                <a className="ml-2">Pay Share</a>
+                <a className="ml-2" onClick={() => toggleViewPayForm()}>
+                  Pay Share
+                </a>
               </button>
             </div>
           </div>

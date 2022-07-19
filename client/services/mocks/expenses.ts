@@ -1,5 +1,6 @@
 import mockFetch from "./mock";
 import { FormData } from "../../pages/expense/create";
+import { PayFormData } from "../../components/pay";
 
 const EXPENSE_DELAY = 3000; //in ms
 
@@ -20,10 +21,10 @@ export interface ExpenseModel {
   total: string;
   remaining: string;
   timeRemaining: string;
-  status: "Pending" | "Paid" | "Cancelled";
+  status: string;
   description: string;
   debtors: DebtorModel[];
-  category: "Accommodation" | "Transportation" | "Food and Drinks" | "Misc";
+  category: string;
   token: string;
 }
 
@@ -67,6 +68,10 @@ class ExpenseService {
   }
 
   async createExpense(data: FormData): Promise<number> {
+    return mockFetch<number>(EXPENSE_DELAY, 1);
+  }
+
+  async payExpense(data: PayFormData): Promise<number> {
     return mockFetch<number>(EXPENSE_DELAY, 1);
   }
 }
