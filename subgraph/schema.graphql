@@ -1,0 +1,23 @@
+type ExpenseCreated @entity {
+  id: ID!
+  index: BigInt!
+  creator: Bytes!
+  recipient: Bytes!
+  amount: BigInt!
+}
+
+type DebtorPaid @entity {
+  id: ID!
+  index: BigInt!
+  recipient: Bytes!
+  debtor: Bytes!
+  amount: BigInt!
+}
+
+type ExpenseCancelled @entity {
+  id: ID!
+  index: BigInt!
+  creator: Bytes!
+  recipient: Bytes!
+  amount: BigInt!
+}

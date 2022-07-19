@@ -1,0 +1,31 @@
+specVersion: 0.0.4
+description: Split-Protocal
+repository: https://github.com/yanghakim/Split-Protocol.git
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Split
+    network: mainnet
+    source:
+      address: '0x2E645469f354BB4F5c8a05B3b30A929361cf77eC'
+      abi: Split
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ExpenseCreated
+        - DebtorPaid
+        - ExpenseCancelled
+      abis:
+        - name: Split
+          file: ./abis/Split.json
+      eventHandlers:
+        - event: ExpenseCreated(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleExpenseCreated
+        - event: DebtorPaid(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleDebtorPaid
+        - event: ExpenseCancelled(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleExpenseCancelled
+      file: ./src/mapping.ts
