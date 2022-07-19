@@ -14,22 +14,28 @@ contract Split is Ownable {
         uint indexed index,
         address indexed creator,
         address indexed recipient,
-        uint amount
+        string name,
+        string description,
+        uint category,
+        uint status,
+        uint amount,
+        uint amountPaid
     );
 
     event DebtorPaid(
         uint indexed index,
         address indexed recipient,
         address indexed debtor,
-        uint amount
+        uint amountPaid
     );
 
     event ExpenseCancelled(
         uint indexed index,
         address indexed creator,
-        address indexed recipient,
-        uint amount
+        address indexed recipient
     );
+
+    event RecipientPaid(uint indexed index, address indexed recipient);
 
     //pause contract during emergency
     bool _pauseContract = false;
@@ -205,7 +211,12 @@ contract Split is Ownable {
             expenseIndex,
             _creator._address,
             _recipient._address,
-            _amount
+            _name,
+            _description,
+            uint(_category),
+            uint(expense.status),
+            _amount,
+            expense.amountPaid
         );
     }
 
@@ -303,7 +314,6 @@ contract Split is Ownable {
 
         // if full amount has been collected, pay recipient
         if (expense.amountPaid >= expense.amount) {
-
             // clean paid amount record of all expense debtors
             for (uint idx; idx < expense.debtors.length; idx++) {
                 expense.debtors[idx].amountOut = 0;
