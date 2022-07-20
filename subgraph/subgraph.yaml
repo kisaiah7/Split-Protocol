@@ -11,9 +11,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Split
-    network: mainnet
+    network: Matic
     source:
-      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+      address: '0xC10DFcc06b37660446cB99a7A2800469F8D58fE5'
       abi: Split
     mapping:
       kind: ethereum/events

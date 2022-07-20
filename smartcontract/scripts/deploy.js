@@ -8,8 +8,12 @@ async function main(){
   const deployedSplitContract = await splitContract.deploy();
   await deployedSplitContract.deployed();
 
+  console.log("Split contract deployed to:", deployedSplitContract.address)
+
   const deployedSwapContract = await swapContract.deploy(deployedSplitContract.address);
   await deployedSwapContract.deployed();
+
+  console.log("Swap contract deployed to:", deployedSwapContract.address)
 
   deployedSplitContract.setSwapContractAddress(deployedSwapContract.address);
 
@@ -29,7 +33,7 @@ const storeContractData = (contract, contractName) => {
 
   const contractArtiacts = artifacts.readArtifactSync(contractName);
 
-  console.log("Split contract deployed to:", contract.address)
+  
   
   fs.writeFileSync(
     contractDir + `/${contractName}.json`,

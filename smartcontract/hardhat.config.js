@@ -9,9 +9,9 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      // forking: {
-      //   url: process.env.POLYGON_FORK_URL
-      // },
+      forking: {
+        url: process.env.POLYGON_FORK_URL
+      },
     },
     mumbai: {
       url: process.env.ALCHEMY_API_KEY_URL,

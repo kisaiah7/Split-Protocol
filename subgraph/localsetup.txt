@@ -3,3 +3,6 @@
 
 
 graphprotocol/graph-node:v0.22.0
+
+Split contract deployed to: 0xC10DFcc06b37660446cB99a7A2800469F8D58fE5
+Swap contract deployed to: 0x04Cd8B3e384e7bBB01109bc8b6708fCAeD5e9eB0

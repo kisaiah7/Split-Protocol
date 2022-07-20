@@ -38,9 +38,9 @@ contract Split is Ownable {
     //pause contract during emergency
     bool _pauseContract = false;
 
-    address _swapContractAddress;
+    address public _swapContractAddress;
 
-    address _lpTokenContractAddress;
+    address public _lpTokenContractAddress;
 
     // mapping creator address to expense id
     mapping(address => mapping(uint => uint)) _creatorExpenses;
