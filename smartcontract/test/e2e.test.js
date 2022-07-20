@@ -1,12 +1,6 @@
 const { ethers } = require("hardhat");
 const { expect } = require("chai");
 
-const USDT = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-const DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
-const WFIL = "0xEde1B77C0Ccc45BFa949636757cd2cA7eF30137F";
-const WMATIC = "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889";
-const WETH9 = "0x35Fda92346497D4fBF2dB20fe856374f9E7f69a1";
-const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
 const TWENTY_FOUR_HRS = 24 * 60 * 60 * 1000;
 
 const ExpenseCategory = {

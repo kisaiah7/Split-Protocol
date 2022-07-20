@@ -3,12 +3,19 @@ require("dotenv").config({path: ".env"});
 
 async function main(){
   const splitContract = await ethers.getContractFactory("Split");
+  const swapContract = await ethers.getContractFactory("Swap");
 
   const deployedSplitContract = await splitContract.deploy();
-
   await deployedSplitContract.deployed();
 
+  const deployedSwapContract = await swapContract.deploy(deployedSplitContract.address);
+  await deployedSwapContract.deployed();
+
+  deployedSplitContract.setSwapContractAddress(deployedSwapContract.address);
+
+
   storeContractData(deployedSplitContract, "Split");
+  storeContractData(deployedSwapContract, "Swap");
 }
 
 // auto write contract abi.json after deployment
