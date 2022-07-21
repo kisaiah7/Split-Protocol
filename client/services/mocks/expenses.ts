@@ -1,6 +1,7 @@
 import mockFetch from './mock';
 import { FormData, ExpenseCategory } from '../../pages/expense/create';
 import { Contract } from 'ethers';
+import { PayFormData } from '../../components/pay';
 
 const EXPENSE_DELAY = 3000; //in ms
 
@@ -24,6 +25,8 @@ export interface ExpenseModel {
   status: string;
   description: string;
   debtors: DebtorModel[];
+  category: string;
+  token: string;
 }
 
 export function getExpenseData(): ExpenseModel {
@@ -38,7 +41,7 @@ export function getExpenseData(): ExpenseModel {
   const expense = {
     user: 'crypto-cat.eth',
     status: 'Pending',
-    catergoy: 'Car',
+    category: 'Transportation',
     token: 'usdt',
     name: 'Apartment Rent',
     created: '2022-07-03',
@@ -120,6 +123,10 @@ class ExpenseService {
     } catch (err) {
       return -1;
     }
+  }
+
+  async payExpense(data: PayFormData): Promise<number> {
+    return mockFetch<number>(EXPENSE_DELAY, 1);
   }
 }
 

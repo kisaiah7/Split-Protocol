@@ -1,8 +1,8 @@
-import classNames from 'classnames';
-import { ReactNode } from 'react';
+import classNames from "classnames";
+import { ReactNode } from "react";
 
 type Props = {
-  type: 'primary' | 'secondary' | 'tertiary';
+  type: "primary" | "secondary" | "tertiary";
   children: ReactNode;
   className?: string;
 };
@@ -10,33 +10,33 @@ type Props = {
 const Heading = ({ type, children, className }: Props) => {
   const renderHeading = () => {
     switch (type) {
-      case 'primary':
+      case "primary":
         return (
           <h1
             className={classNames(
-              'text-primary font-sans text-5xl leading-tight font-bold',
+              "text-primary font-sans text-5xl leading-tight font-bold",
               className
             )}
           >
             {children}
           </h1>
         );
-      case 'secondary':
+      case "secondary":
         return (
           <h2
             className={classNames(
-              'text-primary font-sans text-3xl leading-normal font-bold',
+              "text-primary font-sans text-3xl leading-normal font-bold",
               className
             )}
           >
             {children}
           </h2>
         );
-      case 'tertiary':
+      case "tertiary":
         return (
           <h3
             className={classNames(
-              'text-primary font-sans text-xl leading-normal font-bold',
+              "text-primary font-sans text-xl leading-normal font-bold",
               className
             )}
           >
