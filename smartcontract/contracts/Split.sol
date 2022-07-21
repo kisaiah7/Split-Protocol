@@ -357,11 +357,6 @@ contract Split is Ownable {
         uint expenseIndex = _debtorExpenses[_debtorAddress][index];
         Expense storage expense = _allExpenses[expenseIndex];
 
-        uint debtIndex = getDebt(expenseIndex, _debtorAddress);
-        Debtor storage debtor = expense.debtors[debtIndex];
-
-        require(debtor._address == _debtorAddress, "Debt Not found");
-
         return (
             expense.name,
             expense.description,
