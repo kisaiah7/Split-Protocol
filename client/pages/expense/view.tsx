@@ -106,7 +106,7 @@ const View: NextPage = () => {
                 {expense.name}
               </p>
 
-              <div className="flex flex-row mb-2 mt-5 text-primary">
+              <div className="flex flex-row justify-between w-full mb-2 mt-5 text-primary">
                 <div className="text-center">
                   <p className="text-muted font-bold text-2xs tracking-widest">
                     CREATED
@@ -140,6 +140,13 @@ const View: NextPage = () => {
                     TIME REMAINING
                   </p>
                   <p className="text-sm mt-1">{expense.timeRemaining}</p>
+                </div>
+
+                <div className="text-center ml-3">
+                  <p className="text-muted font-bold text-2xs tracking-widest">
+                    STATUS
+                  </p>
+                  <p className="text-sm mt-1">{expense.status}</p>
                 </div>
               </div>
 
@@ -187,8 +194,14 @@ const View: NextPage = () => {
                     <p>{debtor.payed}</p>
                     <p>{debtor.payedAt}</p>
                     <p>
-                      <button className="bg-btn-gradient font-bold px-3 py-2 rounded-2xl">
-                        {debtor.status}
+                      <button
+                        className={`font-bold px-3 py-2 rounded-2xl ${
+                          debtor.status
+                            ? "bg-paid-btn-gradient"
+                            : "bg-unpaid-btn-gradient"
+                        }`}
+                      >
+                        {debtor.status ? "Paid" : "UnPaid"}
                       </button>
                     </p>
                   </div>

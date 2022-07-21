@@ -11,9 +11,18 @@ import coinsIconSm from "../public/coins-icon-2.svg";
 import calendarIcon from "../public/calendar-icon.svg";
 import { ExpenseModel } from "../services/mocks/expenses";
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
+  const { address } = useAccount();
   const { expense } = props;
+
+  const [status, setStatus] = useState("Paid");
+  for (let debtor of expense.debtors) {
+    if (address == debtor.address) {
+      setStatus(debtor.status);
+    }
+  }
 
   const [bgColor, setBgColor] = useState("bg-misc-gradient");
   const [bgIcon, setBgIcon] = useState(coinsIcon);
@@ -57,8 +66,12 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
               <p className="ml-2 text-primary text-sm">{expense.user}</p>
             </div>
 
-            <button className="bg-btn-gradient text-primary py-2 px-3 rounded-3xl text-sm font-bold">
-              {expense.status}
+            <button
+              className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${
+                status ? "bg-paid-btn-gradient" : "bg-unpaid-btn-gradient"
+              }`}
+            >
+              {status}
             </button>
           </div>
 
