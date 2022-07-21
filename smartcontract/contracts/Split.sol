@@ -241,11 +241,14 @@ contract Split is Ownable {
             string memory,
             string memory,
             ExpenseCategory,
-            uint,
             address,
-            ExpenseStatus,
             uint,
-            uint
+            uint,
+            uint,
+            ExpenseStatus,
+            address,
+            address,
+            Debtor[] memory
         )
     {
         uint expenseIndex = _creatorExpenses[_creatorAddress][index];
@@ -255,11 +258,14 @@ contract Split is Ownable {
             expense.name,
             expense.description,
             expense.category,
-            expense.amount,
             expense.token,
-            expense.status,
+            expense.amount,
             expense.paymentDue,
-            expense.createdAt
+            expense.createdAt,
+            expense.status,
+            expense.creator._address,
+            expense.recipient._address,
+            expense.debtors
         );
     }
 
@@ -338,12 +344,14 @@ contract Split is Ownable {
             string memory,
             string memory,
             ExpenseCategory,
+            address,
             uint,
-            bool,
+            uint,
             uint,
             ExpenseStatus,
-            uint,
-            uint
+            address,
+            address,
+            Debtor[] memory
         )
     {
         uint expenseIndex = _debtorExpenses[_debtorAddress][index];
@@ -358,12 +366,14 @@ contract Split is Ownable {
             expense.name,
             expense.description,
             expense.category,
-            debtor.amount,
-            debtor.hasPaid,
-            debtor.paidAt,
-            expense.status,
+            expense.token,
+            expense.amount,
             expense.paymentDue,
-            expense.createdAt
+            expense.createdAt,
+            expense.status,
+            expense.creator._address,
+            expense.recipient._address,
+            expense.debtors
         );
     }
 
