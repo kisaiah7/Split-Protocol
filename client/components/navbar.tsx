@@ -9,7 +9,9 @@ const Navbar: NextPage = () => {
     <header className="bg-navbar-gradient backdrop-blur">
       <div className="container mx-auto flex flex-row justify-between py-2 ">
         <Link href="/">
-          <Image src={icon} width={40} height={40} />
+          <a className="h-[40px]">
+            <Image src={icon} width={40} height={40} />
+          </a>
         </Link>
 
         <div className="flex flex-row justify-between items-center">

@@ -182,7 +182,7 @@ const Expense: NextPage = () => {
                     <Select
                       name="token"
                       placeholder="Choose..."
-                      options={['usdt']}
+                      options={['usdt', 'eth']}
                       value={formData.token}
                       onChange={onChange}
                     />

@@ -7,15 +7,16 @@ async function main(){
 
   const deployedSplitContract = await splitContract.deploy();
   await deployedSplitContract.deployed();
-
-  console.log("Split contract deployed to:", deployedSplitContract.address)
-
+  
   const deployedSwapContract = await swapContract.deploy(deployedSplitContract.address);
   await deployedSwapContract.deployed();
 
-  console.log("Swap contract deployed to:", deployedSwapContract.address)
+  await deployedSplitContract.setSwapContractAddress(deployedSwapContract.address);
+  
 
-  deployedSplitContract.setSwapContractAddress(deployedSwapContract.address);
+
+  console.log('split address', deployedSplitContract.address);
+  console.log('swap address', deployedSwapContract.address);
 
 
   storeContractData(deployedSplitContract, "Split");
