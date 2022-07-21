@@ -1,8 +1,16 @@
-1) npx hardhat node --hostname 0.0.0.0
-2) sh docker.sh
+smartcontracts
+1) start chain--> yarn fork
+2) deploy contracts--> yarn deploy:fork
+
+copy split contract address into subgraph/subgraph.yaml
+
+subgraph/
+1) Make sure docker is open on your computer
+2) start graph-node/ipfs/postgres--> sh docker.sh
+3) build and deploy subgraph to local graph-node--> yarn full-local
 
 
-graphprotocol/graph-node:v0.22.0
+
 
 Split contract deployed to: 0xC10DFcc06b37660446cB99a7A2800469F8D58fE5
 Swap contract deployed to: 0x04Cd8B3e384e7bBB01109bc8b6708fCAeD5e9eB0
