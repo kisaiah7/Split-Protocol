@@ -15,8 +15,8 @@ async function main(){
   
 
 
-  console.log('split address', deployedSplitContract.address);
-  console.log('swap address', deployedSwapContract.address);
+  console.log('Split Contract deployed to:', deployedSplitContract.address);
+  console.log('Swap Contract deployed to:', deployedSwapContract.address);
 
 
   storeContractData(deployedSplitContract, "Split");

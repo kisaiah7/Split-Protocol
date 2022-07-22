@@ -1,5 +1,5 @@
 specVersion: 0.0.4
-description: Split-Protocal
+description: Split-Protocol
 features:
   - nonFatalErrors
   - fullTextSearch
@@ -11,10 +11,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Split
-    network: Matic
+    network: mumbai
     source:
-      address: '0xC10DFcc06b37660446cB99a7A2800469F8D58fE5'
+      address: '0xa9c2372FdFA2ef145A0d13784C74DE96f0e3eaff'
       abi: Split
+      startBlock: 27275131
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

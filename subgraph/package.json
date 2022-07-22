@@ -8,7 +8,10 @@
     "build": "graph build",
     "deploy": "graph deploy split-protocol/subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy split-protocol/subgraph --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020",
-    "full-local": "yarn codegen && yarn build && yarn create-local && yarn deploy-local"
+    "full-local": "yarn codegen && yarn build && yarn create-local && yarn deploy-local",
+    "hosted-deploy": "graph deploy --product hosted-service psparacino/split-protocol",
+    "full-hosted": "yarn codegen && yarn build && yarn hosted-deploy"
+
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.30.2",

@@ -9,8 +9,11 @@ subgraph/
 2) start graph-node/ipfs/postgres--> sh docker.sh
 3) build and deploy subgraph to local graph-node--> yarn full-local
 
+Mumbai Addresses
 
+Split Contract deployed to: 0xa9c2372FdFA2ef145A0d13784C74DE96f0e3eaff
+Swap Contract deployed to: 0x457bc670d4C334BfDF4413bc31d96a1cc9c826dA
 
-
+Matic Local Fork First Deploys
 Split contract deployed to: 0xC10DFcc06b37660446cB99a7A2800469F8D58fE5
 Swap contract deployed to: 0x04Cd8B3e384e7bBB01109bc8b6708fCAeD5e9eB0
