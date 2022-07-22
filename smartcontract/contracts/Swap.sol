@@ -15,14 +15,14 @@ contract Swap is Ownable {
 
     address internal IssuerContract;
 
-    address USDT_POLYGON_CROSSCHAIN =
-        0xc2132D05D31c914a87C6611C10748AEb04B58e8F;
-    address USDC_POLYGON_CROSSCHAIN =
-        0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
-    address DAI_POLYGON = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
-    address WMATIC_POLYGON = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
-    address WETH_POLYGON = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
-    address WBTC_POLYGON = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;
+    address USDT_MUMBAI=
+        0x3813e82e6f7098b9583FC0F33a962D02018B6803;
+    address USDC_MUMBAI =
+        0xe11A86849d99F524cAC3E7A0Ec1241828e332C62;
+    address DAI_MUMBAI = 0xd393b1E02dA9831Ff419e22eA105aAe4c47E1253;
+    address WMATIC_MUMBAI = 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889;
+    address WETH_MUMBAI = 0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa;
+    // address WBTC_POLYGON = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;
 
     modifier onlyIssuerContract() {
         require(
@@ -85,12 +85,12 @@ contract Swap is Ownable {
         returns (bool)
     {
         if (
-            _assetAddress == USDT_POLYGON_CROSSCHAIN ||
-            _assetAddress == USDC_POLYGON_CROSSCHAIN ||
-            _assetAddress == DAI_POLYGON ||
-            _assetAddress == WMATIC_POLYGON ||
-            _assetAddress == WETH_POLYGON ||
-            _assetAddress == WBTC_POLYGON
+            _assetAddress == USDT_MUMBAI||
+            _assetAddress == USDC_MUMBAI ||
+            _assetAddress == DAI_MUMBAI||
+            _assetAddress == WMATIC_MUMBAI ||
+            _assetAddress ==WETH_MUMBAI // ||
+            // _assetAddress == WBTC_POLYGON
         ) {
             return true;
         }

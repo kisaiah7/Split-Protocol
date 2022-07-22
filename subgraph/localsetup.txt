@@ -11,9 +11,15 @@ subgraph/
 
 Mumbai Addresses
 
+NEW:
+Split Contract deployed to: 0x566ac8344a7cbBC4879e5692F32A9ebdED002e7f
+Swap Contract deployed to: 0x6134C0C7D655CfF2F225CFeB0c06799B588a7E61
+
+
+Previous:
 Split Contract deployed to: 0xa9c2372FdFA2ef145A0d13784C74DE96f0e3eaff
 Swap Contract deployed to: 0x457bc670d4C334BfDF4413bc31d96a1cc9c826dA
 
-Matic Local Fork First Deploys
+Matic Mainnet Local Fork First Deploys
 Split contract deployed to: 0xC10DFcc06b37660446cB99a7A2800469F8D58fE5
 Swap contract deployed to: 0x04Cd8B3e384e7bBB01109bc8b6708fCAeD5e9eB0

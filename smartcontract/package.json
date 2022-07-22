@@ -4,7 +4,9 @@
     "zeroNode": "npx hardhat node --hostname 0.0.0.0",
     "deploy:fork": "npx hardhat run --network localhost scripts/deploy.js",
     "deploy:mumbai": "npx hardhat run --network mumbai scripts/deploy.js",
-    "fork": "npx hardhat node --fork https://polygon-mainnet.g.alchemy.com/v2/<your api key>"
+    "fork": "npx hardhat node --fork https://polygon-mainnet.g.alchemy.com/v2/<your api key>",
+    "console:local" : "npx hardhat console --network localhost",
+    "console:mumbai" : "npx hardhat console --network mumbai"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.1",
