@@ -2,6 +2,7 @@ import mockFetch from './mock';
 import { FormData, ExpenseCategory } from '../../pages/expense/create';
 import { Contract } from 'ethers';
 import { PayFormData } from '../../components/pay';
+import { TokenSymbol } from '../../enums/TokenSymbol';
 
 const EXPENSE_DELAY = 3000; //in ms
 
@@ -28,6 +29,12 @@ export interface ExpenseModel {
   category: string;
   token: string;
 }
+
+const tokenAddress: { [key: string]: string } = {
+  [TokenSymbol.USDT]: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+  [TokenSymbol.WETH]: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+  [TokenSymbol.USDC]: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+};
 
 export function getExpenseData(): ExpenseModel {
   const debtor = {
@@ -71,56 +78,51 @@ class ExpenseService {
   async createExpense(
     creatorAddress: string,
     contract: Contract,
-    data: FormData
+    formData: FormData
   ): Promise<number> {
     try {
       const {
         name,
         description,
         amount,
+        token,
         category,
         paymentDue,
         recipientAddress,
         debtors,
-      } = data;
+      } = formData;
 
-      // USDT token address
-      // TODO Selected one from the form should be used at a later point in time.
-      const tokenAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
+      const address = tokenAddress[token];
       const categoryIndex = Object.values(ExpenseCategory).findIndex(
         (expenseCategory) => expenseCategory === category
       );
       const recipient = {
         _address: recipientAddress,
-        name: 'recipient',
-        avatarURL: 'url',
       };
       const creator = {
         _address: creatorAddress,
-        name: 'creator',
-        avatarURL: 'url',
       };
       const apiDebtors = debtors.map(({ address, amount }) => ({
         _address: address,
-        name: 'debtor',
-        avatarURL: 'url',
         amount,
-        hasPaid: false,
-        paidAt: 0,
       }));
-      await contract.createExpense(
+      const txn = await contract.createExpense(
         name,
         description,
         amount,
-        tokenAddress,
+        address,
         categoryIndex,
         paymentDue,
         recipient,
         creator,
         apiDebtors
       );
+      console.log('Creating expense...', txn.hash);
+      await txn.wait();
+      console.log('Created expense');
       return 0;
     } catch (err) {
+      console.error(err);
       return -1;
     }
   }

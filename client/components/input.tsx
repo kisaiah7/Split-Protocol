@@ -6,7 +6,7 @@ type Props = {
   name: string;
   type?: 'text' | 'number' | 'email' | 'password';
   isDisabled?: boolean;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
 const Input = ({

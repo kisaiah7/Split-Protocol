@@ -19,6 +19,7 @@ import expenseService from '../../services/mocks/expenses';
 import Router from 'next/router';
 import { toast } from 'react-toastify';
 import Loader from '../../components/loader';
+import { TokenSymbol } from '../../enums/TokenSymbol';
 
 export enum ExpenseCategory {
   ACCOMODATION = 'accomodation',
@@ -31,7 +32,7 @@ export interface FormData {
   name: string;
   description: string;
   category: ExpenseCategory | '';
-  token: string;
+  token: TokenSymbol | '';
   amount: number;
   paymentDue: number;
   recipientAddress: string;
@@ -120,9 +121,10 @@ const Expense: NextPage = () => {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
-      if (!address) throw new Error('No active wallet connection');
-      setSubmitLoading(true);
       event.preventDefault();
+      if (!address) throw new Error('No active wallet connection');
+
+      setSubmitLoading(true);
 
       const res = await expenseService.createExpense(
         address,
@@ -182,7 +184,7 @@ const Expense: NextPage = () => {
                     <Select
                       name="token"
                       placeholder="Choose..."
-                      options={['usdt', 'eth']}
+                      options={Object.values(TokenSymbol)}
                       value={formData.token}
                       onChange={onChange}
                     />
@@ -207,9 +209,7 @@ const Expense: NextPage = () => {
                     <Select
                       name="category"
                       placeholder="Choose..."
-                      options={Object.values(ExpenseCategory).map(
-                        (category) => category
-                      )}
+                      options={Object.values(ExpenseCategory)}
                       value={formData.category}
                       onChange={onChange}
                     />
