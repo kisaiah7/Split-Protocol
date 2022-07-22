@@ -272,7 +272,7 @@ contract Split is Ownable {
     function payDebt(
         address fromAsset,
         uint24 poolFee,
-        uint256 amountIn,
+        uint256 amountInMaximum,
         uint index
     ) external {
         require(
@@ -280,7 +280,7 @@ contract Split is Ownable {
             "Invalid asset address"
         );
         require(poolFee > 0, "Pool fee is not enough");
-        require(amountIn > 0, "Amount sent is not enough");
+        require(amountInMaximum > 0, "Amount sent is not enough");
 
         Swap swapContract = Swap(_swapContractAddress);
 
@@ -293,17 +293,18 @@ contract Split is Ownable {
         //TODO: check to see required amount is available in the pool
 
         //swap asset to tagert asset and store on contract
-        uint amountOut = swapContract.swapExactInputSingle(
+        uint swapOut = swapContract.swapExactOutputSingle(
             fromAsset,
             expense.token,
             msg.sender,
             address(this),
             poolFee,
-            amountIn
+            debtor.amountOut,
+            amountInMaximum
         );
-
-        debtor.amountOut += amountOut;
-        expense.amountPaid += amountOut;
+        require(debtor.amountOut >= swapOut, "swap amount not greater than debt");
+        debtor.amountOut += swapOut;
+        expense.amountPaid += swapOut;
 
         if (debtor.amountOut >= debtor.amount) {
             debtor.hasPaid = true;
@@ -331,7 +332,7 @@ contract Split is Ownable {
             expenseIndex,
             expense.recipient._address,
             msg.sender,
-            amountOut
+            swapOut
         );
     }
 
