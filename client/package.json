@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^0.4.2",
+    "@uniswap/sdk-core": "^3.0.1",
+    "@uniswap/v3-sdk": "^3.9.0",
     "axios": "^0.27.2",
     "classnames": "^2.3.1",
     "ethers": "^5.6.9",
