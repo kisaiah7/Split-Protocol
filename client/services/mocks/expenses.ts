@@ -31,9 +31,11 @@ export interface ExpenseModel {
 }
 
 const tokenAddress: { [key: string]: string } = {
-  [TokenSymbol.USDT]: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
-  [TokenSymbol.WETH]: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
-  [TokenSymbol.USDC]: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+  [TokenSymbol.USDT]: '0x3813e82e6f7098b9583FC0F33a962D02018B6803',
+  [TokenSymbol.WETH]: '0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa',
+  [TokenSymbol.USDC]: '0xe11A86849d99F524cAC3E7A0Ec1241828e332C62',
+  [TokenSymbol.DAI]: '0xd393b1E02dA9831Ff419e22eA105aAe4c47E1253',
+  [TokenSymbol.WMATIC]: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
 };
 
 export function getExpenseData(): ExpenseModel {
