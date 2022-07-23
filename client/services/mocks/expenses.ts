@@ -1,33 +1,34 @@
 import mockFetch from './mock';
 import { FormData, ExpenseCategory } from '../../pages/expense/create';
-import { Contract } from 'ethers';
+import { Contract, ethers } from 'ethers';
 import { PayFormData } from '../../components/pay';
 import { TokenSymbol } from '../../enums/TokenSymbol';
+import splitContract from '../../utils/abis/Split.json';
+import { rawArrayToExpenses } from '../expenseTransformator';
 
 const EXPENSE_DELAY = 3000; //in ms
 
 export interface DebtorModel {
-  name: string;
-  share: string;
-  payed: string;
-  payedAt: string;
-  status: string;
   address: string;
+  amount: number;
+  amountOut: number;
+  paidAt: Date;
+  hasPaid: boolean;
 }
 
 export interface ExpenseModel {
-  user: string;
   name: string;
-  created: string;
-  recipientAddress: string;
-  total: string;
-  remaining: string;
-  timeRemaining: string;
-  status: string;
   description: string;
-  debtors: DebtorModel[];
   category: string;
   token: string;
+  amount: number;
+  amountPaid: number;
+  paymentDue: Date;
+  createdAt: Date;
+  status: string;
+  creator: string;
+  recipient: string;
+  debtors: DebtorModel[];
 }
 
 const tokenAddress: { [key: string]: string } = {
@@ -39,27 +40,26 @@ const tokenAddress: { [key: string]: string } = {
 };
 
 export function getExpenseData(): ExpenseModel {
-  const debtor = {
-    name: 'crypto-cat.eth',
-    share: '1000 USDT',
-    payed: '1 ETH',
-    payedAt: '2022-07-15',
-    status: 'paid',
+  const debtor: DebtorModel = {
+    amount: 1,
+    amountOut: 1,
+    paidAt: new Date(),
+    hasPaid: true,
     address: '0x123151231241123123',
   };
   const expense = {
-    user: 'crypto-cat.eth',
-    status: 'Pending',
-    category: 'Transportation',
-    token: 'usdt',
     name: 'Apartment Rent',
-    created: '2022-07-03',
-    recipientAddress: 'jon-apartments.eth',
-    total: '2000 USDT',
-    remaining: '1000 USDT',
-    timeRemaining: '3 days',
     description:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam at tortor non imperdiet turpis volutpat neque, mattis...',
+    category: 'Transportation',
+    token: 'usdt',
+    amount: 1,
+    amountPaid: 1,
+    paymentDue: new Date(),
+    createdAt: new Date(),
+    status: 'Paid',
+    creator: '0x123213asdasdas12321ff',
+    recipient: '0x12412319asfasd',
     debtors: [debtor, debtor],
   };
 
@@ -68,6 +68,10 @@ export function getExpenseData(): ExpenseModel {
 
 const expenses: ExpenseModel[] = new Array(30).fill(getExpenseData());
 
+const contract = new ethers.Contract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!, splitContract.abi,
+  ethers.Wallet.createRandom().connect(new ethers.providers.AlchemyProvider("maticmum", process.env.NEXT_PUBLIC_ALCHEMY_API_KEY)));
+
+
 class ExpenseService {
   async loadExpensesPreviews(): Promise<ExpenseModel[]> {
     return mockFetch<ExpenseModel[]>(EXPENSE_DELAY, expenses);
@@ -75,6 +79,56 @@ class ExpenseService {
 
   async loadExpense(id: number): Promise<ExpenseModel> {
     return mockFetch<ExpenseModel>(EXPENSE_DELAY, expenses[id]);
+  }
+
+  async fetchCreatedExpenses(wallet: string): Promise<any[]> {
+    try {
+      if (wallet != null) {
+        const res = await contract.getNumberOfCreatedExpenses(wallet);
+        const numberOfCreatedExpenses = Number(res._hex);
+        const promises = [];
+        for (let i = 0; i < numberOfCreatedExpenses; i++) {
+          promises.push(contract.getCreatedExpense(wallet, i));
+        }
+
+        return await Promise.all(promises);
+      }
+      return [];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
+
+  async fetchOwedExpenses(wallet: string): Promise<any[]> {
+    try {
+      if (wallet != null) {
+        const res = await contract.getNumberOfOwedExpenses(wallet);
+        const numberOfCreatedExpenses = Number(res._hex);
+        const promises = [];
+        for (let i = 0; i < numberOfCreatedExpenses; i++) {
+          promises.push(contract.getOwedExpense(wallet, i));
+        }
+        return await Promise.all(promises);
+      }
+      return [];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
+
+  async loadExpenses(wallet: string): Promise<ExpenseModel[]> {
+    try {
+      if (wallet != null) {
+        const owedExpenses = await this.fetchOwedExpenses(wallet);
+        return rawArrayToExpenses(owedExpenses);
+      }
+      return [];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
   }
 
   async createExpense(
