@@ -13,8 +13,10 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import Loader from "../../components/loader";
 import Pay from "../../components/pay";
+import { useAccount } from "wagmi";
 
 const View: NextPage = () => {
+  const { address } = useAccount();
   const [state, setState] = useState<AsyncState<ExpenseModel>>({
     data: undefined,
     loading: true,
@@ -26,6 +28,7 @@ const View: NextPage = () => {
   const [viewPayForm, togglePayForm] = useState(false);
 
   useEffectOnce(() => {
+    if (!address) throw new Error("No active wallet connection");
     setState({ data: undefined, loading: true, error: undefined });
     const fetchData = async () => {
       try {
@@ -42,9 +45,42 @@ const View: NextPage = () => {
     fetchData();
   });
 
+  const formatDateYMD = (date: Date) => {
+    return date.toISOString().split("T")[0];
+  };
+
   const toggleViewPayForm = () => {
     togglePayForm((prevState) => !prevState);
   };
+
+  function truncate(str: string, n: number) {
+    return str.length > n ? str.substring(0, n - 1) + "..." : str;
+  }
+
+  function formatTimeType(value: number, type: string): string {
+    if (value == 0) return "";
+    if (Math.abs(value) == 1) return `  • ${Math.abs(value)} ${type}`;
+    return `${Math.abs(value)} ${type}s`;
+  }
+
+  function calculateTimeDiff(expenseDue: Date): string {
+    const currentTime = new Date();
+    if (expenseDue.getTime() < currentTime.getTime()) return "now";
+    const timeDiff = expenseDue.getTime() - currentTime.getTime();
+    let time = timeDiff;
+    const days = Math.ceil(time / (1000 * 3600 * 24));
+    const hours = Math.ceil(time / 1000 / 60 / 60);
+    time -= hours * 1000 * 60 * 60;
+    const minutes = Math.ceil(time / 1000 / 60);
+    time -= minutes * 1000 * 60;
+    const seconds = Math.ceil(time / 1000);
+    time -= seconds * 1000;
+    if (days != 0) return `${formatTimeType(days, "day")}`;
+    if (hours != 0) return `${formatTimeType(hours, "hour")}`;
+    if (minutes != 0) return `${formatTimeType(minutes, "minute")}`;
+    if (seconds != 0) return `${formatTimeType(seconds, "second")}`;
+    return "now";
+  }
 
   const { data: expense, loading, error } = state;
 
@@ -94,7 +130,7 @@ const View: NextPage = () => {
               <div className="flex flex-row items-center justify-between">
                 <div className="flex flex-row items-center">
                   <Image src={cryptocat} width={24} height={24} />
-                  <p className="ml-2 text-primary text-sm">{expense.user}</p>
+                  <p className="ml-2 text-primary text-sm">{expense.creator}</p>
                 </div>
 
                 <button className="bg-btn-gradient text-primary py-2 px-3 rounded-3xl text-sm font-bold">
@@ -111,35 +147,43 @@ const View: NextPage = () => {
                   <p className="text-muted font-bold text-2xs tracking-widest">
                     CREATED
                   </p>
-                  <p className="text-sm mt-1">{expense.created}</p>
+                  <p className="text-sm mt-1">
+                    {formatDateYMD(expense.createdAt)}
+                  </p>
                 </div>
 
                 <div className="text-center ml-3">
                   <p className="text-muted font-bold text-2xs tracking-widest">
                     RECIPIENT
                   </p>
-                  <p className="text-sm mt-1">{expense.recipientAddress}</p>
+                  <p className="text-sm mt-1">
+                    {truncate(expense.recipient, 10)}
+                  </p>
                 </div>
 
                 <div className="text-center ml-3">
                   <p className="text-muted font-bold text-2xs tracking-widest">
                     TOTAL
                   </p>
-                  <p className="text-sm mt-1">{expense.total}</p>
+                  <p className="text-sm mt-1">{expense.amount}</p>
                 </div>
 
                 <div className="text-center ml-3">
                   <p className="text-muted font-bold text-2xs tracking-widest">
                     REMAINING
                   </p>
-                  <p className="text-sm mt-1">{expense.remaining}</p>
+                  <p className="text-sm mt-1">
+                    {expense.amount - expense.amountPaid}
+                  </p>
                 </div>
 
                 <div className="text-center ml-3">
                   <p className="text-muted font-bold text-2xs tracking-widest">
                     TIME REMAINING
                   </p>
-                  <p className="text-sm mt-1">{expense.timeRemaining}</p>
+                  <p className="text-sm mt-1">
+                    {calculateTimeDiff(expense.paymentDue)}
+                  </p>
                 </div>
               </div>
 
@@ -181,14 +225,20 @@ const View: NextPage = () => {
                   >
                     <span className="flex flex-row items-center">
                       <Image src={cryptocat} width={25} height={25} />
-                      <p className="ml-2">{debtor.name}</p>
+                      <p className="ml-2">{debtor.address}</p>
                     </span>
-                    <p>{debtor.share}</p>
-                    <p>{debtor.payed}</p>
-                    <p>{debtor.payedAt}</p>
+                    <p>{debtor.amount}</p>
+                    <p>{debtor.amountOut ? debtor.amountOut : "N/A"}</p>
+                    <p>{formatDateYMD(debtor.paidAt)}</p>
                     <p>
-                      <button className="bg-btn-gradient font-bold px-3 py-2 rounded-2xl">
-                        {debtor.status}
+                      <button
+                        className={`font-bold px-3 py-2 rounded-2xl ${
+                          debtor.hasPaid
+                            ? "bg-paid-btn-gradient"
+                            : "bg-unpaid-btn-gradient"
+                        }`}
+                      >
+                        {debtor.hasPaid ? "Paid" : "Unpaid"}
                       </button>
                     </p>
                   </div>

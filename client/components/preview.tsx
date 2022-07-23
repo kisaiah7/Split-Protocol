@@ -112,8 +112,14 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
               <p className="ml-2 text-primary text-sm">{truncate(expense.creator, 15)}</p>
             </div>
 
-            <button className="bg-btn-gradient text-primary py-2 px-3 rounded-3xl text-sm font-bold">
-              {debtorData.hasPaid ? "Paid" : "Pending"}
+            <button
+              className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${
+                debtorData.hasPaid
+                  ? "bg-paid-btn-gradient"
+                  : "bg-unpaid-btn-gradient"
+              }`}
+            >
+              {debtorData.hasPaid ? "Paid" : "Unpaid"}
             </button>
           </div>
 

@@ -30,6 +30,8 @@ module.exports = {
       "foodanddrinks-gradient":
         "linear-gradient(90deg, #6E7BF7 0%, #0DD7F2 100%)",
       "misc-gradient": "linear-gradient(90deg, #656565 0%, #A3A3A3 100%)",
+      "paid-btn-gradient": "linear-gradient(90deg, #13B942 0%, #11D5D5 100%)",
+      "unpaid-btn-gradient": "linear-gradient(90deg, #FF9900 0%, #FFDD66 100%)",
     },
     fontFamily: {
       sans: ["Noto Sans", "system-ui"],
