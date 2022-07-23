@@ -3,10 +3,11 @@ import classNames from 'classnames';
 type Props = {
   label: string;
   Icon: React.FunctionComponent;
-  theme?: 'normal' | 'condensed';
+  theme?: 'normal' | 'muted' | 'condensed';
   className?: string;
   onClick?: () => void;
   type?: 'button' | 'submit';
+  isDisabled?: boolean;
 };
 
 const Button = ({
@@ -15,6 +16,7 @@ const Button = ({
   theme = 'normal',
   type = 'button',
   className,
+  isDisabled = false,
   onClick,
 }: Props) => {
   return (
@@ -22,12 +24,16 @@ const Button = ({
       className={classNames(
         'text-primary flex items-center gap-2  tracking-widest  text-sm',
         {
-          'bg-btn-gradient px-2 py-1 rounded-sm': theme === 'normal',
+          'px-2 py-1 rounded-sm': theme === 'normal' || theme === 'muted',
+          'bg-btn-gradient': theme === 'normal',
+          'bg-cancel-gradient': theme === 'muted',
+          'grayscale-[.3]': isDisabled,
         },
         className
       )}
       onClick={onClick}
       type={type}
+      disabled={isDisabled}
     >
       <Icon />
       <span>{label}</span>

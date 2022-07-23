@@ -59,7 +59,7 @@ const Expense: NextPage = () => {
   });
   const { data: signer } = useSigner();
   const contract = useContract({
-    addressOrName: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!,
+    addressOrName: process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS!,
     contractInterface: splitContract.abi,
     signerOrProvider: signer,
   });

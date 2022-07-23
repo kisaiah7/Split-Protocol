@@ -4,5 +4,4 @@ export enum TokenSymbol {
   DAI = 'DAI',
   WMATIC = 'WMATIC',
   WETH = 'WETH',
-  WBTC = 'WBTC',
 }

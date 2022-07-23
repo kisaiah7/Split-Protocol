@@ -1,8 +1,10 @@
 import mockFetch from './mock';
 import { FormData, ExpenseCategory } from '../../pages/expense/create';
-import { Contract } from 'ethers';
-import { PayFormData } from '../../components/pay';
+import { ethers } from 'ethers';
 import { TokenSymbol } from '../../enums/TokenSymbol';
+import { Token } from '@uniswap/sdk-core';
+import { parseUnits } from '../../utils/token-helper';
+import { erc20ABI } from 'wagmi';
 
 const EXPENSE_DELAY = 3000; //in ms
 
@@ -31,9 +33,11 @@ export interface ExpenseModel {
 }
 
 const tokenAddress: { [key: string]: string } = {
-  [TokenSymbol.USDT]: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
-  [TokenSymbol.WETH]: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
-  [TokenSymbol.USDC]: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+  [TokenSymbol.USDT]: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+  [TokenSymbol.WETH]: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
+  [TokenSymbol.USDC]: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+  [TokenSymbol.DAI]: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+  [TokenSymbol.WMATIC]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
 };
 
 export function getExpenseData(): ExpenseModel {
@@ -77,7 +81,7 @@ class ExpenseService {
 
   async createExpense(
     creatorAddress: string,
-    contract: Contract,
+    contract: ethers.Contract,
     formData: FormData
   ): Promise<number> {
     try {
@@ -127,8 +131,41 @@ class ExpenseService {
     }
   }
 
-  async payExpense(data: PayFormData): Promise<number> {
-    return mockFetch<number>(EXPENSE_DELAY, 1);
+  async payExpense(
+    fromToken: Token,
+    poolFee: number,
+    amount: number,
+    splitContract: ethers.Contract,
+    signer: ethers.Signer,
+    expenseIndex: number
+  ): Promise<number> {
+    try {
+      const tokenContract = new ethers.Contract(
+        fromToken.address,
+        erc20ABI,
+        signer
+      );
+      const parsedAmount = parseUnits(amount, fromToken.decimals);
+      if (!process.env.NEXT_PUBLIC_SWAP_CONTRACT_ADDRESS)
+        throw new Error('NEXT_PUBLIC_SWAP_CONTRACT_ADDRESS is undefined');
+      await tokenContract.approve(
+        process.env.NEXT_PUBLIC_SWAP_CONTRACT_ADDRESS,
+        parsedAmount
+      );
+      const txn = await splitContract.payDebt(
+        fromToken.address,
+        poolFee,
+        parsedAmount,
+        expenseIndex
+      );
+      console.log('Transaction pending...');
+      await txn.wait();
+      console.log('Paid expense');
+      return 0;
+    } catch (err) {
+      console.error('An error occurred trying to pay an expense', err);
+      return -1;
+    }
   }
 }
 

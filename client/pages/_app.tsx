@@ -4,7 +4,7 @@ import type { AppProps } from 'next/app';
 import Layout from '../components/layout';
 import AuthProvider from '../components/auth-provider';
 import { ToastContainer } from 'react-toastify';
-import "react-toastify/dist/ReactToastify.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 import '@rainbow-me/rainbowkit/styles.css';
 import {
@@ -16,8 +16,18 @@ import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 
+export const LOCALHOST_CHAIN_ID = 31337;
+
 const { chains, provider } = configureChains(
-  [chain.polygonMumbai],
+  [
+    {
+      id: LOCALHOST_CHAIN_ID,
+      name: chain.localhost.name,
+      network: chain.localhost.network,
+      rpcUrls: chain.localhost.rpcUrls,
+      nativeCurrency: chain.polygon.nativeCurrency,
+    },
+  ],
   [
     alchemyProvider({
       alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
