@@ -6,8 +6,10 @@ import expenseService, { ExpenseModel } from "../services/mocks/expenses";
 import AsyncState from "../models/async-state";
 import { toast } from "react-toastify";
 import { useEffectOnce } from "../hooks/use-effect-once";
+import { useAccount } from 'wagmi';
 
 const Dashboard: NextPage = () => {
+  const { address } = useAccount();
   const [state, setState] = useState<AsyncState<ExpenseModel[]>>({
     data: undefined,
     loading: true,
@@ -15,10 +17,12 @@ const Dashboard: NextPage = () => {
   });
 
   useEffectOnce(() => {
+    if (!address) throw new Error('No active wallet connection');
     setState({ data: undefined, loading: true, error: undefined });
     const fetchData = async () => {
       try {
-        const res = await expenseService.loadExpensesPreviews();
+        const res = await expenseService.loadExpenses(address);
+        //const res = await expenseService.loadExpensesPreviews();
         if (loading == true) {
           setState({ data: res, loading: false, error: false });
           toast.success("Loaded expenses");
@@ -30,6 +34,16 @@ const Dashboard: NextPage = () => {
     };
     fetchData();
   });
+
+  const getPreviews = () => {
+    if (!state.data) return [];
+    if (data && data.length == 0) return [];
+    var indents = [];
+    for (var i = 0; i < state.data?.length; i++) {
+      indents.push(<Preview key={i} expense={state.data[i]}></Preview>);
+    }
+    return indents;
+  }
 
   const { data, loading, error } = state;
   return (
@@ -44,9 +58,7 @@ const Dashboard: NextPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-4 gap-4">
-            {data?.map((expense, index) => {
-              return <Preview key={index} expense={expense}></Preview>;
-            })}
+            {getPreviews()}
           </div>
         )}
       </div>

@@ -1,8 +1,8 @@
-import type { NextPage } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import icon from '../public/icon.svg';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import type { NextPage } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import icon from "../public/favicon.ico";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const Navbar: NextPage = () => {
   return (

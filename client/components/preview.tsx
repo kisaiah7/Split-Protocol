@@ -9,14 +9,24 @@ import foodIcon from "../public/food-icon.svg";
 import profileIcon from "../public/profile-icon.svg";
 import coinsIconSm from "../public/coins-icon-2.svg";
 import calendarIcon from "../public/calendar-icon.svg";
-import { ExpenseModel } from "../services/mocks/expenses";
+import { ExpenseModel, DebtorModel } from "../services/mocks/expenses";
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
+  const { address } = useAccount();
   const { expense } = props;
 
   const [bgColor, setBgColor] = useState("bg-misc-gradient");
   const [bgIcon, setBgIcon] = useState(coinsIcon);
+
+  const [debtorData, setDebtorData] = useState<DebtorModel>({
+    address: "",
+    amount: 0,
+    amountOut: 0,
+    paidAt: new Date(),
+    hasPaid: false,
+  });
 
   useEffect(() => {
     switch (expense.category as any) {
@@ -39,7 +49,52 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
       default:
         break;
     }
+
+    for (let debtor of expense.debtors) {
+      if (debtor.address == address) {
+        setDebtorData({
+          address: debtor.address,
+          amount: debtor.amount,
+          amountOut: debtor.amountOut,
+          paidAt: debtor.paidAt,
+          hasPaid: debtor.hasPaid,
+        });
+      }
+    }
   });
+
+  function truncate(str: string, n: number) {
+    return (str.length > n) ? str.substring(0, n - 1) + '...' : str;
+  };
+    return str.length > n ? str.substring(0, n - 1) + "..." : str;
+  }
+
+  function formatTimeType(value: number, type: string): string {
+    if (value == 0) return '';
+    if (Math.abs(value) == 1) return `  • ${Math.abs(value)} ${type}`;
+    return `${Math.abs(value)} ${type}s`;
+  }
+
+  function calculateTimeDiff(expenseDue: Date): string {
+    const currentTime = new Date();
+    if (expenseDue.getTime() < currentTime.getTime()) return 'now';
+    const timeDiff = expenseDue.getTime() - currentTime.getTime();
+    let time = timeDiff;
+    const days = Math.ceil(time / (1000 * 3600 * 24));
+    const hours = Math.ceil(time / 1000 / 60 / 60);
+    time -= hours * 1000 * 60 * 60;
+    const minutes = Math.ceil(time / 1000 / 60);
+    time -= minutes * 1000 * 60;
+    const seconds = Math.ceil(time / 1000);
+    time -= seconds * 1000;
+    if (days != 0) return `${formatTimeType(days, 'day')}`;
+    if (hours != 0) return `${formatTimeType(hours, 'hour')}`;
+    if (minutes != 0) return `${formatTimeType(minutes, 'minute')}`;
+    if (seconds != 0) return `${formatTimeType(seconds, 'second')}`;
+    return 'now';
+  }
+
+  console.log(expense);
 
   return (
     <Link href="/expense/view">
@@ -54,11 +109,17 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
           <div className="flex flex-row items-center justify-between">
             <div className="flex flex-row items-center">
               <Image src={cryptocat} width={24} height={24} />
-              <p className="ml-2 text-primary text-sm">{expense.user}</p>
+              <p className="ml-2 text-primary text-sm">{truncate(expense.creator, 15)}</p>
             </div>
 
-            <button className="bg-btn-gradient text-primary py-2 px-3 rounded-3xl text-sm font-bold">
-              {expense.status}
+            <button
+              className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${
+                debtorData.hasPaid
+                  ? "bg-paid-btn-gradient"
+                  : "bg-unpaid-btn-gradient"
+              }`}
+            >
+              {debtorData.hasPaid ? "Paid" : "Unpaid"}
             </button>
           </div>
 
@@ -72,17 +133,19 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
           <div className="flex flex-row border-t-2 border-tertiary mt-4 pt-5 text-primary">
             <div className="flex flex-row">
               <Image src={profileIcon} height={16} width={16} />
-              <p className="ml-2 text-xs">{expense.recipientAddress}</p>
+              <p className="ml-2 text-xs">{truncate(expense.recipient, 10)}</p>
             </div>
 
             <div className="flex flex-row ml-3">
               <Image src={coinsIconSm} height={16} width={16} />
-              <p className="ml-2 text-xs">{expense.remaining}</p>
+              <p className="ml-2 text-xs">
+                {debtorData.amount} {expense.token}
+              </p>
             </div>
 
             <div className="flex flex-row ml-3">
               <Image src={calendarIcon} height={16} width={16} />
-              <p className="ml-2 text-xs">{expense.timeRemaining}</p>
+              <p className="ml-2 text-xs">{calculateTimeDiff(expense.paymentDue)}</p>
             </div>
           </div>
         </div>
