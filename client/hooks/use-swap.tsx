@@ -5,20 +5,24 @@ import IUniswapV3PoolArtifact from '@uniswap/v3-core/artifacts/contracts/interfa
 import { useContract, useProvider } from 'wagmi';
 import { PoolImmutables } from '../models/pool-immutables';
 import { PoolState } from '../models/pool-state';
-import ERC20ABI from '../utils/abis/ERC20.json';
 import { TokenImmutables } from '../models/token-immutables';
 import { polygonMumbai } from 'wagmi/chains';
 import { useRef, useState } from 'react';
 import QuoterArtifact from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json';
 import { TokenSymbol } from '../enums/TokenSymbol';
 import { formatUnits, parseUnits } from '../utils/token-helper';
+import { erc20ABI } from 'wagmi';
 
 const USDC_WETH_POOL_CONTRACT_ADDRESS =
   '0x45dda9cb7c25131df268515131f647d726f50608';
-const MATIC_WETH_POOL_CONTRACT_ADDRESS =
+const WMATIC_WETH_POOL_CONTRACT_ADDRESS =
   '0x167384319b41f7094e62f7506409eb38079abff8';
-const MATIC_USDC_POOL_CONTRACT_ADDRESS =
+const WMATIC_USDC_POOL_CONTRACT_ADDRESS =
   '0xa374094527e1673a86de625aa59517c5de346d32';
+const USDC_DAI_POOL_CONTRACT_ADDRESS =
+  '0x5645dcb64c059aa11212707fbf4e7f984440a8cf';
+const USDC_USDT_POOL_CONTRACT_ADDRESS =
+  '0xdac8a8e6dbf8c690ec6815e0ff03491b2770255d';
 const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6';
 
 const pools: {
@@ -31,11 +35,19 @@ const pools: {
   },
   {
     tokenSymbolPair: [TokenSymbol.WMATIC, TokenSymbol.WETH],
-    poolContractAddress: MATIC_WETH_POOL_CONTRACT_ADDRESS,
+    poolContractAddress: WMATIC_WETH_POOL_CONTRACT_ADDRESS,
   },
   {
     tokenSymbolPair: [TokenSymbol.WMATIC, TokenSymbol.USDC],
-    poolContractAddress: MATIC_USDC_POOL_CONTRACT_ADDRESS,
+    poolContractAddress: WMATIC_USDC_POOL_CONTRACT_ADDRESS,
+  },
+  {
+    tokenSymbolPair: [TokenSymbol.USDC, TokenSymbol.DAI],
+    poolContractAddress: USDC_DAI_POOL_CONTRACT_ADDRESS,
+  },
+  {
+    tokenSymbolPair: [TokenSymbol.USDC, TokenSymbol.USDT],
+    poolContractAddress: USDC_USDT_POOL_CONTRACT_ADDRESS,
   },
 ];
 
@@ -103,6 +115,7 @@ const useSwap = () => {
       setToTokenPrice(toTokenPrice);
     } catch (err) {
       console.error('Error trying to initialize a pool', err);
+      throw err;
     }
   };
 
@@ -174,7 +187,7 @@ const useSwap = () => {
   const createTokenContract = (tokenContractAddress: string) => {
     const tokenContract = new ethers.Contract(
       tokenContractAddress,
-      ERC20ABI as any,
+      erc20ABI,
       provider
     );
     return tokenContract;
@@ -185,7 +198,6 @@ const useSwap = () => {
     chain = polygonMumbai
   ) => {
     const tokenImmutables = await getTokenImmutables(tokenContract);
-    console.log(tokenImmutables);
     const token = new Token(
       chain.id,
       tokenContract.address,
