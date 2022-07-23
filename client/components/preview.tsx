@@ -9,14 +9,24 @@ import foodIcon from "../public/food-icon.svg";
 import profileIcon from "../public/profile-icon.svg";
 import coinsIconSm from "../public/coins-icon-2.svg";
 import calendarIcon from "../public/calendar-icon.svg";
-import { ExpenseModel } from "../services/mocks/expenses";
+import { ExpenseModel, DebtorModel } from "../services/mocks/expenses";
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
+  const { address } = useAccount();
   const { expense } = props;
 
   const [bgColor, setBgColor] = useState("bg-misc-gradient");
   const [bgIcon, setBgIcon] = useState(coinsIcon);
+
+  const [debtorData, setDebtorData] = useState<DebtorModel>({
+    address: "",
+    amount: 0,
+    amountOut: 0,
+    paidAt: new Date(),
+    hasPaid: false,
+  });
 
   useEffect(() => {
     switch (expense.category as any) {
@@ -39,11 +49,25 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
       default:
         break;
     }
+
+    for (let debtor of expense.debtors) {
+      if (debtor.address == address) {
+        setDebtorData({
+          address: debtor.address,
+          amount: debtor.amount,
+          amountOut: debtor.amountOut,
+          paidAt: debtor.paidAt,
+          hasPaid: debtor.hasPaid,
+        });
+      }
+    }
   });
 
   function truncate(str: string, n: number) {
     return (str.length > n) ? str.substring(0, n - 1) + '...' : str;
   };
+    return str.length > n ? str.substring(0, n - 1) + "..." : str;
+  }
 
   function formatTimeType(value: number, type: string): string {
     if (value == 0) return '';
@@ -89,7 +113,7 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
             </div>
 
             <button className="bg-btn-gradient text-primary py-2 px-3 rounded-3xl text-sm font-bold">
-              {expense.status ? "Paid" : "Pending"}
+              {debtorData.hasPaid ? "Paid" : "Pending"}
             </button>
           </div>
 
@@ -108,7 +132,9 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
 
             <div className="flex flex-row ml-3">
               <Image src={coinsIconSm} height={16} width={16} />
-              <p className="ml-2 text-xs">{expense.amount - expense.amountPaid} {expense.token}</p>
+              <p className="ml-2 text-xs">
+                {debtorData.amount} {expense.token}
+              </p>
             </div>
 
             <div className="flex flex-row ml-3">
