@@ -54,7 +54,6 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
   function calculateTimeDiff(expenseDue: Date): string {
     const currentTime = new Date();
     if (expenseDue.getTime() < currentTime.getTime()) return 'now';
-    console.log(expenseDue);
     const timeDiff = expenseDue.getTime() - currentTime.getTime();
     let time = timeDiff;
     const days = Math.ceil(time / (1000 * 3600 * 24));
@@ -70,6 +69,8 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
     if (seconds != 0) return `${formatTimeType(seconds, 'second')}`;
     return 'now';
   }
+
+  console.log(expense);
 
   return (
     <Link href="/expense/view">
@@ -88,7 +89,7 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
             </div>
 
             <button className="bg-btn-gradient text-primary py-2 px-3 rounded-3xl text-sm font-bold">
-              {expense.status?"Paid":"Pending"}
+              {expense.status ? "Paid" : "Pending"}
             </button>
           </div>
 
@@ -107,7 +108,7 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
 
             <div className="flex flex-row ml-3">
               <Image src={coinsIconSm} height={16} width={16} />
-              <p className="ml-2 text-xs">{expense.amount - expense.amountPaid}</p>
+              <p className="ml-2 text-xs">{expense.amount - expense.amountPaid} {expense.token}</p>
             </div>
 
             <div className="flex flex-row ml-3">

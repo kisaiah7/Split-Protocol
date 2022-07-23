@@ -1,5 +1,14 @@
 import { DebtorModel, ExpenseModel } from "./mocks/expenses";
 
+const CATEGORIES = ['Accommodation', 'Transportation', 'Food and Drinks', 'Misc']
+const TOKEN_BY_ADDRESS: { [key: string]: string } = {
+    '0x3813e82e6f7098b9583FC0F33a962D02018B6803':'USDT',
+    '0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa':'WETH',
+    '0xe11A86849d99F524cAC3E7A0Ec1241828e332C62':'USDC',
+    '0xd393b1E02dA9831Ff419e22eA105aAe4c47E1253':'DAI',
+    '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889':'WMATIC',
+  };
+
 export function transformDebtorData(raw: any[]): DebtorModel {
     const address = raw[0];
     const amount = Number(raw[1]);
@@ -28,13 +37,11 @@ function sumDebtorPayments(debtors: DebtorModel[]): number {
     return sum;
 }
 
-const categories = ['Accommodation', 'Transportation', 'Food and Drinks', 'Misc']
-
 export function rawDataToExpense(raw: any[]): ExpenseModel {
     const name = raw[0];
     const description = raw[1];
-    const category = categories[Number(raw[2])];
-    const token = raw[3];
+    const category = CATEGORIES[Number(raw[2])];
+    const token = TOKEN_BY_ADDRESS[raw[3]];
     const amount = Number(raw[4]);
     const paymentDue = new Date(Number(raw[5]) * 1000)
     const createdAt = new Date(Number(raw[6]) * 1000);
