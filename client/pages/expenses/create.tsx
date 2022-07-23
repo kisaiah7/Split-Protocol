@@ -15,7 +15,7 @@ import Heading from '../../components/heading';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useAccount, useContract, useSigner } from 'wagmi';
 import splitContract from '../../utils/abis/Split.json';
-import expenseService from '../../services/mocks/expenses';
+import expenseService from '../../services/expenses';
 import Router from 'next/router';
 import { toast } from 'react-toastify';
 import Loader from '../../components/loader';
@@ -126,6 +126,10 @@ const Expense: NextPage = () => {
 
       setSubmitLoading(true);
 
+      const latestExpenseIndex = await expenseService.getLatestExpenseIndex(
+        contract,
+        address
+      );
       const res = await expenseService.createExpense(
         address,
         contract,
@@ -136,7 +140,7 @@ const Expense: NextPage = () => {
       } else {
         toast.success('New expense created. Redirecting...');
       }
-      Router.push(`/expense/view`);
+      Router.push(`/expenses/${latestExpenseIndex + 1}`);
       setSubmitLoading(false);
     } catch (err) {
       console.error(err);

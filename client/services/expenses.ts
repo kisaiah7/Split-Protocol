@@ -1,15 +1,10 @@
-import mockFetch from './mock';
-import { FormData, ExpenseCategory } from '../../pages/expense/create';
-import { Contract, ethers } from 'ethers';
-import { PayFormData } from '../../components/pay';
-import { TokenSymbol } from '../../enums/TokenSymbol';
-import splitContract from '../../utils/abis/Split.json';
-import { rawArrayToExpenses } from '../expenseTransformator';
+import { FormData, ExpenseCategory } from '../pages/expenses/create';
+import { ethers } from 'ethers';
+import { TokenSymbol } from '../enums/TokenSymbol';
+import { rawArrayToExpenses } from './expenseTransformator';
 import { Token } from '@uniswap/sdk-core';
-import { parseUnits } from '../../utils/token-helper';
+import { parseUnits } from '../utils/token-helper';
 import { erc20ABI } from 'wagmi';
-
-const EXPENSE_DELAY = 3000; //in ms
 
 export interface DebtorModel {
   address: string;
@@ -42,49 +37,11 @@ const tokenAddress: { [key: string]: string } = {
   [TokenSymbol.WMATIC]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
 };
 
-export function getExpenseData(): ExpenseModel {
-  const debtor: DebtorModel = {
-    amount: 1,
-    amountOut: 1,
-    paidAt: new Date(),
-    hasPaid: true,
-    address: '0x123151231241123123',
-  };
-  const expense = {
-    name: 'Apartment Rent',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam at tortor non imperdiet turpis volutpat neque, mattis...',
-    category: 'Transportation',
-    token: 'usdt',
-    amount: 1,
-    amountPaid: 1,
-    paymentDue: new Date(),
-    createdAt: new Date(),
-    status: 'Paid',
-    creator: '0x123213asdasdas12321ff',
-    recipient: '0x12412319asfasd',
-    debtors: [debtor, debtor],
-  };
-
-  return expense;
-}
-
-const expenses: ExpenseModel[] = new Array(30).fill(getExpenseData());
-
-const contract = new ethers.Contract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!, splitContract.abi,
-  ethers.Wallet.createRandom().connect(new ethers.providers.AlchemyProvider("maticmum", process.env.NEXT_PUBLIC_ALCHEMY_API_KEY)));
-
-
 class ExpenseService {
-  async loadExpensesPreviews(): Promise<ExpenseModel[]> {
-    return mockFetch<ExpenseModel[]>(EXPENSE_DELAY, expenses);
-  }
-
-  async loadExpense(id: number): Promise<ExpenseModel> {
-    return mockFetch<ExpenseModel>(EXPENSE_DELAY, expenses[id]);
-  }
-
-  async fetchCreatedExpenses(wallet: string): Promise<any[]> {
+  async fetchCreatedExpenses(
+    contract: ethers.Contract,
+    wallet: string
+  ): Promise<any[]> {
     try {
       if (wallet != null) {
         const res = await contract.getNumberOfCreatedExpenses(wallet);
@@ -103,7 +60,19 @@ class ExpenseService {
     }
   }
 
-  async fetchOwedExpenses(wallet: string): Promise<any[]> {
+  async fetchOwedExpense(
+    contract: ethers.Contract,
+    wallet: string,
+    expenseIndex: number
+  ): Promise<any[]> {
+    const owedExpense = await contract.getOwedExpense(wallet, expenseIndex);
+    return owedExpense;
+  }
+
+  async fetchOwedExpenses(
+    contract: ethers.Contract,
+    wallet: string
+  ): Promise<any[]> {
     try {
       if (wallet != null) {
         const res = await contract.getNumberOfOwedExpenses(wallet);
@@ -121,10 +90,31 @@ class ExpenseService {
     }
   }
 
-  async loadExpenses(wallet: string): Promise<ExpenseModel[]> {
+  async loadExpense(
+    contract: ethers.Contract,
+    wallet: string,
+    expenseIndex: number
+  ): Promise<ExpenseModel> {
+    try {
+      const owedExpense = await this.fetchOwedExpense(
+        contract,
+        wallet,
+        expenseIndex
+      );
+      return rawArrayToExpenses([owedExpense])[0];
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async loadExpenses(
+    contract: ethers.Contract,
+    wallet: string
+  ): Promise<ExpenseModel[]> {
     try {
       if (wallet != null) {
-        const owedExpenses = await this.fetchOwedExpenses(wallet);
+        const owedExpenses = await this.fetchOwedExpenses(contract, wallet);
         return rawArrayToExpenses(owedExpenses);
       }
       return [];
@@ -184,6 +174,11 @@ class ExpenseService {
       console.error(err);
       return -1;
     }
+  }
+
+  async getLatestExpenseIndex(contract: ethers.Contract, address: string) {
+    const owedExpensesCount = await contract.getNumberOfOwedExpenses(address);
+    return owedExpensesCount - 1;
   }
 
   async payExpense(

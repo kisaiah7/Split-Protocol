@@ -1,8 +1,8 @@
-import type { NextPage } from "next";
-import Link from "next/link";
-import Image from "next/image";
-import icon from "../public/favicon.ico";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import type { NextPage } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
+import icon from '../public/favicon.ico';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const Navbar: NextPage = () => {
   return (
@@ -19,7 +19,7 @@ const Navbar: NextPage = () => {
             <a className="text-muted font-bold text-sm">Dashboard</a>
           </Link>
 
-          <Link href="/expense/create">
+          <Link href="/expenses/create">
             <a className="ml-6 text-muted font-bold text-sm">Create Expense</a>
           </Link>
 

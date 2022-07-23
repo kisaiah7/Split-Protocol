@@ -1,21 +1,28 @@
-import type { NextPage } from "next";
-import Image from "next/image";
-import cryptocat from "../../public/cryptocat.png";
-import houseIcon from "../../public/house-icon.svg";
-import coinsIcon from "../../public/coins-icon.svg";
-import carIcon from "../../public/car-icon.svg";
-import foodIcon from "../../public/food-icon.svg";
-import { useState } from "react";
-import AsyncState from "../../models/async-state";
-import expenseService, { ExpenseModel } from "../../services/mocks/expenses";
-import { useEffectOnce } from "../../hooks/use-effect-once";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
-import Loader from "../../components/loader";
-import Pay from "../../components/pay";
-import { useAccount } from "wagmi";
+import type { NextPage } from 'next';
+import Image from 'next/image';
+import cryptocat from '../../public/cryptocat.png';
+import houseIcon from '../../public/house-icon.svg';
+import coinsIcon from '../../public/coins-icon.svg';
+import carIcon from '../../public/car-icon.svg';
+import foodIcon from '../../public/food-icon.svg';
+import { useState } from 'react';
+import AsyncState from '../../models/async-state';
+import expenseService, { ExpenseModel } from '../../services/expenses';
+import { useEffectOnce } from '../../hooks/use-effect-once';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
+import Loader from '../../components/loader';
+import Pay from '../../components/pay';
+import { useAccount, useContract, useProvider } from 'wagmi';
+import { useRouter } from 'next/router';
+import splitContractArtifact from '../../utils/abis/Split.json';
 
 const View: NextPage = () => {
+  if (!process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS)
+    throw new Error(
+      'Environment variable NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS is undefined'
+    );
+
   const { address } = useAccount();
   const [state, setState] = useState<AsyncState<ExpenseModel>>({
     data: undefined,
@@ -23,30 +30,45 @@ const View: NextPage = () => {
     error: undefined,
   });
 
-  const [bgColor, setBgColor] = useState("bg-misc-gradient");
+  const [bgColor, setBgColor] = useState('bg-misc-gradient');
   const [bgIcon, setBgIcon] = useState(coinsIcon);
   const [viewPayForm, togglePayForm] = useState(false);
 
+  const router = useRouter();
+  const { id: expenseIndex } = router.query;
+  if (typeof expenseIndex !== 'string') throw new Error('Invalid query param');
+
+  const provider = useProvider();
+  const contract = useContract({
+    addressOrName: process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS,
+    contractInterface: splitContractArtifact.abi,
+    signerOrProvider: provider,
+  });
+
   useEffectOnce(() => {
-    if (!address) throw new Error("No active wallet connection");
+    if (!address) throw new Error('No active wallet connection');
     setState({ data: undefined, loading: true, error: undefined });
     const fetchData = async () => {
       try {
-        const res = await expenseService.loadExpense(1);
+        const res = await expenseService.loadExpense(
+          contract,
+          address,
+          parseInt(expenseIndex)
+        );
         if (loading == true) {
           setState({ data: res, loading: false, error: false });
-          toast.success("Loaded expense");
+          toast.success('Loaded expense');
         }
       } catch (error) {
         setState({ data: undefined, loading: false, error });
-        toast.error("Error while loading expenses");
+        toast.error('Error while loading expenses');
       }
     };
     fetchData();
   });
 
   const formatDateYMD = (date: Date) => {
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split('T')[0];
   };
 
   const toggleViewPayForm = () => {
@@ -54,18 +76,18 @@ const View: NextPage = () => {
   };
 
   function truncate(str: string, n: number) {
-    return str.length > n ? str.substring(0, n - 1) + "..." : str;
+    return str.length > n ? str.substring(0, n - 1) + '...' : str;
   }
 
   function formatTimeType(value: number, type: string): string {
-    if (value == 0) return "";
+    if (value == 0) return '';
     if (Math.abs(value) == 1) return `  • ${Math.abs(value)} ${type}`;
     return `${Math.abs(value)} ${type}s`;
   }
 
   function calculateTimeDiff(expenseDue: Date): string {
     const currentTime = new Date();
-    if (expenseDue.getTime() < currentTime.getTime()) return "now";
+    if (expenseDue.getTime() < currentTime.getTime()) return 'now';
     const timeDiff = expenseDue.getTime() - currentTime.getTime();
     let time = timeDiff;
     const days = Math.ceil(time / (1000 * 3600 * 24));
@@ -75,45 +97,60 @@ const View: NextPage = () => {
     time -= minutes * 1000 * 60;
     const seconds = Math.ceil(time / 1000);
     time -= seconds * 1000;
-    if (days != 0) return `${formatTimeType(days, "day")}`;
-    if (hours != 0) return `${formatTimeType(hours, "hour")}`;
-    if (minutes != 0) return `${formatTimeType(minutes, "minute")}`;
-    if (seconds != 0) return `${formatTimeType(seconds, "second")}`;
-    return "now";
+    if (days != 0) return `${formatTimeType(days, 'day')}`;
+    if (hours != 0) return `${formatTimeType(hours, 'hour')}`;
+    if (minutes != 0) return `${formatTimeType(minutes, 'minute')}`;
+    if (seconds != 0) return `${formatTimeType(seconds, 'second')}`;
+    return 'now';
   }
 
   const { data: expense, loading, error } = state;
 
+  console.log(expense);
+
   useEffect(() => {
     if (state.data) {
       switch (state.data.category as any) {
-        case "Accommodation":
-          setBgColor("bg-accommodation-gradient");
+        case 'Accommodation':
+          setBgColor('bg-accommodation-gradient');
           setBgIcon(houseIcon);
           break;
-        case "Transportation":
-          setBgColor("bg-transportation-gradient");
+        case 'Transportation':
+          setBgColor('bg-transportation-gradient');
           setBgIcon(carIcon);
           break;
-        case "Food and Drinks":
-          setBgColor("bg-foodanddrinks-gradient");
+        case 'Food and Drinks':
+          setBgColor('bg-foodanddrinks-gradient');
           setBgIcon(foodIcon);
           break;
-        case "Misc":
-          setBgColor("bg-misc-gradient");
+        case 'Misc':
+          setBgColor('bg-misc-gradient');
           setBgIcon(coinsIcon);
           break;
         default:
           break;
       }
     }
-  });
+  }, [state.data]);
 
   return (
     <div className="h-screen bg-body-gradient flex flex-col items-center justify-center">
       {!loading && expense ? (
         <>
-          {viewPayForm ? <Pay toggleViewPayForm={toggleViewPayForm} /> : ""}
+          {viewPayForm ? (
+            <Pay
+              recipientToken={expense.token}
+              shareAmountInRecipientToken={
+                expense.debtors.find(
+                  (debtor: any) => debtor.address === address
+                )?.amount ?? 0
+              }
+              expenseIndex={parseInt(expenseIndex)}
+              toggleViewPayForm={toggleViewPayForm}
+            />
+          ) : (
+            ''
+          )}
           <div className="container flex flex-row items-end">
             <div
               className={`rounded-lg w-96 h-64 flex items-center justify-center ${bgColor}`}
@@ -228,17 +265,17 @@ const View: NextPage = () => {
                       <p className="ml-2">{debtor.address}</p>
                     </span>
                     <p>{debtor.amount}</p>
-                    <p>{debtor.amountOut ? debtor.amountOut : "N/A"}</p>
+                    <p>{debtor.amountOut ? debtor.amountOut : 'N/A'}</p>
                     <p>{formatDateYMD(debtor.paidAt)}</p>
                     <p>
                       <button
                         className={`font-bold px-3 py-2 rounded-2xl ${
                           debtor.hasPaid
-                            ? "bg-paid-btn-gradient"
-                            : "bg-unpaid-btn-gradient"
+                            ? 'bg-paid-btn-gradient'
+                            : 'bg-unpaid-btn-gradient'
                         }`}
                       >
-                        {debtor.hasPaid ? "Paid" : "Unpaid"}
+                        {debtor.hasPaid ? 'Paid' : 'Unpaid'}
                       </button>
                     </p>
                   </div>

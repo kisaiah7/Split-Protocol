@@ -1,19 +1,31 @@
-import { useState } from "react";
-import type { NextPage } from "next";
-import Preview from "../components/preview";
-import Loader from "../components/loader";
-import expenseService, { ExpenseModel } from "../services/mocks/expenses";
-import AsyncState from "../models/async-state";
-import { toast } from "react-toastify";
-import { useEffectOnce } from "../hooks/use-effect-once";
-import { useAccount } from 'wagmi';
+import { useState } from 'react';
+import type { NextPage } from 'next';
+import Preview from '../components/preview';
+import Loader from '../components/loader';
+import expenseService, { ExpenseModel } from '../services/expenses';
+import AsyncState from '../models/async-state';
+import { toast } from 'react-toastify';
+import { useEffectOnce } from '../hooks/use-effect-once';
+import { useAccount, useContract, useProvider } from 'wagmi';
+import splitContractArtifact from '../utils/abis/Split.json';
+import Link from 'next/link';
 
 const Dashboard: NextPage = () => {
+  if (!process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS)
+    throw new Error(
+      'Environment variable NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS is undefined'
+    );
   const { address } = useAccount();
   const [state, setState] = useState<AsyncState<ExpenseModel[]>>({
     data: undefined,
     loading: true,
     error: undefined,
+  });
+  const provider = useProvider();
+  const contract = useContract({
+    addressOrName: process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS,
+    contractInterface: splitContractArtifact.abi,
+    signerOrProvider: provider,
   });
 
   useEffectOnce(() => {
@@ -21,29 +33,18 @@ const Dashboard: NextPage = () => {
     setState({ data: undefined, loading: true, error: undefined });
     const fetchData = async () => {
       try {
-        const res = await expenseService.loadExpenses(address);
-        //const res = await expenseService.loadExpensesPreviews();
+        const res = await expenseService.loadExpenses(contract, address);
         if (loading == true) {
           setState({ data: res, loading: false, error: false });
-          toast.success("Loaded expenses");
+          toast.success('Loaded expenses');
         }
       } catch (error) {
         setState({ data: undefined, loading: false, error });
-        toast.error("Error while loading expenses");
+        toast.error('Error while loading expenses');
       }
     };
     fetchData();
   });
-
-  const getPreviews = () => {
-    if (!state.data) return [];
-    if (data && data.length == 0) return [];
-    var indents = [];
-    for (var i = 0; i < state.data?.length; i++) {
-      indents.push(<Preview key={i} expense={state.data[i]}></Preview>);
-    }
-    return indents;
-  }
 
   const { data, loading, error } = state;
   return (
@@ -53,12 +54,18 @@ const Dashboard: NextPage = () => {
           Your Expenses
         </p>
         {loading ? (
-          <div style={{ minHeight: "70vh" }}>
+          <div style={{ minHeight: '70vh' }}>
             <Loader />
           </div>
         ) : (
           <div className="grid grid-cols-4 gap-4">
-            {getPreviews()}
+            {data?.map((expense, index) => (
+              <Link key={index} href={`/expenses/${index}`}>
+                <a>
+                  <Preview expense={expense}></Preview>
+                </a>
+              </Link>
+            ))}
           </div>
         )}
       </div>

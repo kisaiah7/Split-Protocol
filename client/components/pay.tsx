@@ -9,7 +9,7 @@ import CancelIcon from '../public/close-icon.svg?inline';
 import CheckIcon from '../public/check-icon.svg?inline';
 import { toast } from 'react-toastify';
 import Router from 'next/router';
-import expenseService from '../services/mocks/expenses';
+import expenseService from '../services/expenses';
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { TokenSymbol } from '../enums/TokenSymbol';
 import useSwap from '../hooks/use-swap';
@@ -19,7 +19,6 @@ import {
   useNetwork,
   useProvider,
   useSigner,
-  erc20ABI,
 } from 'wagmi';
 import SplitContractArtifact from '../utils/abis/Split.json';
 import { ethers } from 'ethers';
@@ -37,15 +36,23 @@ export type PayFormData = {
 };
 
 type Props = {
+  recipientToken: string;
+  shareAmountInRecipientToken: number;
+  expenseIndex: number;
   toggleViewPayForm: () => void;
 };
 
-const Pay = ({ toggleViewPayForm }: Props) => {
+const Pay = ({
+  recipientToken,
+  shareAmountInRecipientToken,
+  expenseIndex,
+  toggleViewPayForm,
+}: Props) => {
   const [payFormData, setPayFormData] = useState<PayFormData>({
     token: '',
     shareAmount: 0,
-    recipientToken: '',
-    shareAmountInRecipientToken: 0,
+    recipientToken: recipientToken as TokenSymbol,
+    shareAmountInRecipientToken,
     networkFee: 0,
     swapFee: 0,
   });
@@ -68,78 +75,29 @@ const Pay = ({ toggleViewPayForm }: Props) => {
   const { chain } = useNetwork();
 
   useEffect(() => {
-    populateView();
-  }, []);
-
-  const populateView = async () => {
-    try {
-      const { recipientToken, shareAmountInRecipientToken } = await fetchData();
-      setPayFormData({
-        ...payFormData,
-        recipientToken,
-        shareAmountInRecipientToken,
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  /**
-   * This method is only necessary as long as the data for the view is not passed as props which it eventually will.
-   * Once all data is correctly fetched the parent view is supposed to pass down the necessary data to this component and
-   * no data fetching should be done in this component.
-   * @returns Promise<void>
-   */
-  const fetchData = async () => {
-    if (!process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS)
-      throw new Error('NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS is undefined');
-    const splitContract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS,
-      SplitContractArtifact.abi,
-      provider
-    );
-    console.log(splitContract);
-    console.log(provider);
-    console.log(address);
-    const owedExpensesCount = await splitContract.getNumberOfOwedExpenses(
-      address
-    );
-    console.log(`There are ${owedExpensesCount} expenses that are unpaid`);
-    if (owedExpensesCount.toString() === '0') throw new Error();
-    const lastExpense = await splitContract.getOwedExpense(
-      address,
-      ethers.BigNumber.from(owedExpensesCount).toNumber() - 1
-    );
-    console.log('Populating view with the expense: ', lastExpense);
-    const [, , , tokenAddress, , , , , , , debtors] = lastExpense;
-    const tokenContract = new ethers.Contract(tokenAddress, erc20ABI, provider);
-    const tokenSymbol = await tokenContract.symbol();
-    const { amount } = debtors.find(
-      (debtor: any) => debtor._address === address
-    );
-    return {
-      recipientToken: tokenSymbol,
-      shareAmountInRecipientToken: ethers.BigNumber.from(amount).toNumber(),
-    };
-  };
-
-  useEffect(() => {
     if (!signer || chain?.id !== LOCALHOST_CHAIN_ID) return;
-
     // If the dapp is connected to Localhost the user has 10k Matic which can
     // be converted to WMATIC to be used within the dApp
     fundWMATIC(signer);
   }, [signer]);
 
   const fundWMATIC = async (signer: ethers.Signer) => {
+    const fundAmount = 5000;
+
+    const MATICBalance = await signer.getBalance();
+    if (parseFloat(ethers.utils.formatEther(MATICBalance)) < fundAmount) return;
+
     const WMATICContract = new ethers.Contract(
       '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
       WMATICABI,
       signer
     );
-    const balance = await WMATICContract.balanceOf(address);
-    if (parseFloat(ethers.utils.formatEther(balance)) > 3000) return;
-    await WMATICContract.deposit({ value: ethers.utils.parseEther('5000') });
+    const WMATICBalance = await WMATICContract.balanceOf(address);
+    if (parseFloat(ethers.utils.formatEther(WMATICBalance)) > fundAmount - 2000)
+      return;
+    await WMATICContract.deposit({
+      value: ethers.utils.parseEther(fundAmount.toString()),
+    });
   };
 
   const onChangeToken = async (event: ChangeEvent<HTMLSelectElement>) => {
@@ -177,14 +135,14 @@ const Pay = ({ toggleViewPayForm }: Props) => {
       payFormData.shareAmount,
       splitContract,
       signer,
-      1
+      expenseIndex
     );
     if (res < 0) {
       toast.error('Error processing payment');
     } else {
       toast.success('New payment made. Redirecting...');
     }
-    Router.push(`/expense/view`);
+    Router.push(`/expenses/${expenseIndex}`);
     toggleViewPayForm();
   };
 
