@@ -8,7 +8,7 @@ import CancelIcon from '../public/close-icon.svg?inline';
 // @ts-ignore
 import CheckIcon from '../public/check-icon.svg?inline';
 import { toast } from 'react-toastify';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import expenseService from '../services/expenses';
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { TokenSymbol } from '../enums/TokenSymbol';
@@ -73,6 +73,8 @@ const Pay = ({
   });
   const { address } = useAccount();
   const { chain } = useNetwork();
+
+  const router = useRouter();
 
   useEffect(() => {
     if (!signer || chain?.id !== LOCALHOST_CHAIN_ID) return;
@@ -142,8 +144,7 @@ const Pay = ({
     } else {
       toast.success('New payment made. Redirecting...');
     }
-    Router.push(`/expenses/${expenseIndex}`);
-    toggleViewPayForm();
+    router.reload();
   };
 
   return (

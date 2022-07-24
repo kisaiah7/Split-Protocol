@@ -145,24 +145,26 @@ const ExpenseDetail: NextPage = () => {
       <div className="h-screen bg-body-gradient flex flex-col items-center justify-center">
         {expense && (
           <>
-            {viewPayForm && expenseIndex && (
-              <DarkOverlay>
-                <div className="container mx-auto">
-                  <div className="max-w-5xl mx-auto">
-                    <Pay
-                      recipientToken={expense.token}
-                      shareAmountInRecipientToken={
-                        expense.debtors.find(
-                          (debtor: any) => debtor.address === address
-                        )?.amount ?? 0
-                      }
-                      expenseIndex={expenseIndex}
-                      toggleViewPayForm={toggleViewPayForm}
-                    />
+            {viewPayForm &&
+              expenseIndex !== null &&
+              expenseIndex !== undefined && (
+                <DarkOverlay>
+                  <div className="container mx-auto">
+                    <div className="max-w-5xl mx-auto">
+                      <Pay
+                        recipientToken={expense.token}
+                        shareAmountInRecipientToken={
+                          expense.debtors.find(
+                            (debtor: any) => debtor.address === address
+                          )?.amount ?? 0
+                        }
+                        expenseIndex={expenseIndex}
+                        toggleViewPayForm={toggleViewPayForm}
+                      />
+                    </div>
                   </div>
-                </div>
-              </DarkOverlay>
-            )}
+                </DarkOverlay>
+              )}
             <div className="container flex flex-row items-end">
               <div
                 className={`rounded-lg w-96 h-64 flex items-center justify-center ${bgColor}`}
