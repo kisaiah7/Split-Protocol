@@ -2,6 +2,8 @@ import type { NextPage } from 'next';
 import Image from 'next/image';
 import houseIcon from '../../public/house-icon.svg';
 import coinsIcon from '../../public/coins-icon.svg';
+// @ts-ignore
+import CoinsIcon from '../../public/coins-icon.svg?inline';
 import carIcon from '../../public/car-icon.svg';
 import foodIcon from '../../public/food-icon.svg';
 import { useState } from 'react';
@@ -17,6 +19,7 @@ import splitContractArtifact from '../../utils/abis/Split.json';
 import { Blockie } from '../../components/profile-image';
 import RequireAuth from '../../components/require-auth';
 import DarkOverlay from '../../components/dark-overlay';
+import Button from '../../components/button';
 
 const ExpenseDetail: NextPage = () => {
   if (!process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS)
@@ -61,7 +64,6 @@ const ExpenseDetail: NextPage = () => {
         address,
         parseInt(expenseIndex)
       );
-      console.log(res);
       setState({ data: res, loading: false, error: false });
     } catch (error) {
       setState({ data: undefined, loading: false, error });
@@ -106,7 +108,7 @@ const ExpenseDetail: NextPage = () => {
     return 'now';
   }
 
-  const { data: expense, loading, error } = state;
+  const { data: expense, loading } = state;
 
   useEffect(() => {
     if (!address) return;
@@ -252,32 +254,33 @@ const ExpenseDetail: NextPage = () => {
                   {expense.description}
                 </p>
 
-                <button
-                  className={`mt-4 flex flex-row items-center text-primary w-fit ${
-                    expensePaidByAddress
-                      ? 'bg-paid-btn-gradient'
-                      : 'bg-btn-gradient'
-                  } rounded-md px-3 py-2`}
-                  style={{
-                    pointerEvents: expensePaidByAddress ? 'none' : 'auto',
-                  }}
-                >
-                  {expensePaidByAddress ? (
-                    <a className="ml-2">Share Paid</a>
-                  ) : (
-                    <>
-                      <Image
-                        className="text-primary"
-                        src={coinsIcon}
-                        width={24}
-                        height={24}
-                      />
-                      <a className="ml-2" onClick={() => toggleViewPayForm()}>
-                        Pay Share
-                      </a>
-                    </>
-                  )}
-                </button>
+                {!expensePaidByAddress && (
+                  <>
+                    {process.env.NODE_ENV !== 'production' ? (
+                      <div className="flex">
+                        <Button
+                          Icon={CoinsIcon}
+                          label="Pay split"
+                          className="mt-4"
+                          onClick={toggleViewPayForm}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-start gap-2">
+                        <Button
+                          Icon={CoinsIcon}
+                          label="Pay split"
+                          className="mt-4"
+                          isDisabled={true}
+                        />
+                        <p className="text-left font-sans text-muted">
+                          The pay share functionality is not available yet on
+                          Polygon Mumbai
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 

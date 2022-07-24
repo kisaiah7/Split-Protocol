@@ -46,7 +46,7 @@ const Home: NextPage = () => {
     fetchData();
   });
 
-  const { data, loading, error } = state;
+  const { data, loading } = state;
   return (
     <RequireAuth>
       <div className="h-full min-h-screen bg-body-gradient pb-20">

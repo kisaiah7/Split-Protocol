@@ -13,13 +13,7 @@ import expenseService from '../services/expenses';
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { TokenSymbol } from '../enums/TokenSymbol';
 import useSwap from '../hooks/use-swap';
-import {
-  useAccount,
-  useContract,
-  useNetwork,
-  useProvider,
-  useSigner,
-} from 'wagmi';
+import { useAccount, useContract, useNetwork, useSigner } from 'wagmi';
 import SplitContractArtifact from '../utils/abis/Split.json';
 import { ethers } from 'ethers';
 import WMATICABI from '../utils/abis/WMATIC.json';
@@ -65,7 +59,6 @@ const Pay = ({
     getQuoteReverse,
   } = useSwap();
   const { data: signer } = useSigner();
-  const provider = useProvider();
   const splitContract = useContract({
     addressOrName: process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS!,
     contractInterface: SplitContractArtifact.abi,
