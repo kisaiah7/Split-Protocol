@@ -19,3 +19,12 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.react-tooltip-lite {
+  background: #2e283b;
+  color: white;
+}
+
+.react-tooltip-lite-arrow {
+  border-color: #363047;
+}

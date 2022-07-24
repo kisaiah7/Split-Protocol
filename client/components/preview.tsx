@@ -11,6 +11,7 @@ import calendarIcon from '../public/calendar-icon.svg';
 import { ExpenseModel, DebtorModel } from '../services/expenses';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
+import { Blockie } from './profile-image';
 
 const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
   const { address } = useAccount();
@@ -104,44 +105,43 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
       <div className="bg-secondary p-3 rounded-lg rounded-t-none">
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center">
-            <Image src={cryptocat} width={24} height={24} />
+            <Blockie address={expense.creator} />
             <p className="ml-2 text-primary text-sm">
               {truncate(expense.creator, 15)}
             </p>
           </div>
 
           <button
-            className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${
-              debtorData.hasPaid
-                ? 'bg-paid-btn-gradient'
-                : 'bg-unpaid-btn-gradient'
-            }`}
+            className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${debtorData.hasPaid
+              ? 'bg-paid-btn-gradient'
+              : 'bg-unpaid-btn-gradient'
+              }`}
           >
             {debtorData.hasPaid ? 'Paid' : 'Unpaid'}
           </button>
         </div>
 
         <p className="font-sans text-primary text-lg font-bold mt-1">
-          {expense.category}
+          {expense.name}
         </p>
         <p className="text-secondary font-normal mt-2 text-sm">
           {expense.description}
         </p>
 
-        <div className="flex flex-row border-t-2 border-tertiary mt-4 pt-5 text-primary">
+        <div className="flex flex-row border-t-2 border-tertiary mt-4 pt-5 text-primary items-center">
           <div className="flex flex-row">
             <Image src={profileIcon} height={16} width={16} />
             <p className="ml-2 text-xs">{truncate(expense.recipient, 10)}</p>
           </div>
 
-          <div className="flex flex-row ml-3">
+          <div className="flex flex-row ml-3 items-center">
             <Image src={coinsIconSm} height={16} width={16} />
             <p className="ml-2 text-xs">
               {debtorData.amount} {expense.token}
             </p>
           </div>
 
-          <div className="flex flex-row ml-3">
+          <div className="flex flex-row ml-3 items-center">
             <Image src={calendarIcon} height={16} width={16} />
             <p className="ml-2 text-xs">
               {calculateTimeDiff(expense.paymentDue)}

@@ -16,6 +16,8 @@ import Pay from '../../components/pay';
 import { useAccount, useContract, useProvider } from 'wagmi';
 import { useRouter } from 'next/router';
 import splitContractArtifact from '../../utils/abis/Split.json';
+import Tooltip from 'react-tooltip-lite';
+import { Blockie } from '../../components/profile-image';
 
 const View: NextPage = () => {
   if (!process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS)
@@ -106,8 +108,6 @@ const View: NextPage = () => {
 
   const { data: expense, loading, error } = state;
 
-  console.log(expense);
-
   useEffect(() => {
     if (state.data) {
       switch (state.data.category as any) {
@@ -132,6 +132,10 @@ const View: NextPage = () => {
       }
     }
   }, [state.data]);
+
+  const expensePaidByAddress = expense ? expense.debtors.find((debtor) => {
+    if (debtor.address == address && debtor.hasPaid) return true;
+  }) : false;
 
   return (
     <div className="h-screen bg-body-gradient flex flex-col items-center justify-center">
@@ -166,12 +170,16 @@ const View: NextPage = () => {
             <div className="flex flex-col ml-7">
               <div className="flex flex-row items-center justify-between">
                 <div className="flex flex-row items-center">
-                  <Image src={cryptocat} width={24} height={24} />
+                  <Blockie address={expense.creator} />
                   <p className="ml-2 text-primary text-sm">{expense.creator}</p>
                 </div>
 
-                <button className="bg-btn-gradient text-primary py-2 px-3 rounded-3xl text-sm font-bold">
-                  {expense.status}
+                <button className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${expense.status
+                  ? 'bg-paid-btn-gradient'
+                  : 'bg-unpaid-btn-gradient'
+                  }`}
+                >
+                  {expense.status ? 'Paid' : 'Unpaid'}
                 </button>
               </div>
 
@@ -228,17 +236,26 @@ const View: NextPage = () => {
                 {expense.description}
               </p>
 
-              <button className="mt-4 flex flex-row items-center text-primary w-fit bg-btn-gradient rounded-md px-3 py-2">
-                <Image
-                  className="text-primary"
-                  src={coinsIcon}
-                  width={24}
-                  height={24}
-                />
-                <a className="ml-2" onClick={() => toggleViewPayForm()}>
-                  Pay Share
-                </a>
+              <button className={`mt-4 flex flex-row items-center text-primary w-fit ${expensePaidByAddress ? 'bg-paid-btn-gradient' : 'bg-btn-gradient'} rounded-md px-3 py-2`} style={{ pointerEvents: expensePaidByAddress ? 'none' : 'auto' }}>
+                {expensePaidByAddress ?
+                  <a className="ml-2">
+                    Share Paid
+                  </a>
+                  : <>
+                    <Image
+                      className="text-primary"
+                      src={coinsIcon}
+                      width={24}
+                      height={24}
+                    />
+                    <a className="ml-2" onClick={() => toggleViewPayForm()}>
+                      Pay Share
+                    </a>
+                  </>
+                }
+
               </button>
+
             </div>
           </div>
 
@@ -261,19 +278,24 @@ const View: NextPage = () => {
                     className="py-5 border-b-2 border-tertiary flex flex-row items-center text-primary text-xs tracking-wide grid grid-cols-5"
                   >
                     <span className="flex flex-row items-center">
-                      <Image src={cryptocat} width={25} height={25} />
-                      <p className="ml-2">{debtor.address}</p>
+                      <Blockie address={debtor.address} />
+                      <Tooltip
+                        content={debtor.address}
+                        direction="top"
+                        tagName="span"
+                        className="target">
+                        <p className="ml-2">{truncate(debtor.address, 20)} </p>
+                      </Tooltip>
                     </span>
                     <p>{debtor.amount}</p>
                     <p>{debtor.amountOut ? debtor.amountOut : 'N/A'}</p>
-                    <p>{formatDateYMD(debtor.paidAt)}</p>
+                    <p>{debtor.amountOut ? formatDateYMD(debtor.paidAt) : null}</p>
                     <p>
                       <button
-                        className={`font-bold px-3 py-2 rounded-2xl ${
-                          debtor.hasPaid
-                            ? 'bg-paid-btn-gradient'
-                            : 'bg-unpaid-btn-gradient'
-                        }`}
+                        className={`font-bold px-3 py-2 rounded-2xl ${debtor.hasPaid
+                          ? 'bg-paid-btn-gradient'
+                          : 'bg-unpaid-btn-gradient'
+                          }`}
                       >
                         {debtor.hasPaid ? 'Paid' : 'Unpaid'}
                       </button>
@@ -286,8 +308,9 @@ const View: NextPage = () => {
         </>
       ) : (
         <Loader />
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 
