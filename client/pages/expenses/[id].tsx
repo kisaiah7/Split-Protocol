@@ -201,9 +201,15 @@ const View: NextPage = () => {
                   <p className="text-muted font-bold text-2xs tracking-widest">
                     RECIPIENT
                   </p>
-                  <p className="text-sm mt-1">
-                    {truncate(expense.recipient, 10)}
-                  </p>
+                  <Tooltip
+                    content={expense.recipient}
+                    direction="top"
+                    tagName="span"
+                    className="target">
+                    <p className="text-sm mt-1">
+                      {truncate(expense.recipient, 10)} </p>
+                  </Tooltip>
+
                 </div>
 
                 <div className="text-center ml-3">
