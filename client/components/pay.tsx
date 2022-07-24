@@ -216,11 +216,11 @@ const Pay = ({
         <p className="text-right">
           {payFormData.swapFee} {chain?.nativeCurrency?.symbol}
         </p>
-        <span className="col-span-2 mt-2 flex justify-end text-muted text-xs flex items-center">
+        <span className="col-span-2 mt-2 justify-end text-muted text-xs flex items-center">
           <Image src={infoIcon} width={10} height={10} />
           <p className="ml-1">
-            If your selected token diverges from the recipient's token a small
-            fee has to be provided in order to swap the token.
+            If your selected token diverges from the recipient&apos;s token a
+            small fee has to be provided in order to swap the token.
           </p>
         </span>
       </div>
