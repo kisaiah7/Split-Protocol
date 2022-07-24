@@ -21,8 +21,10 @@ const nextConfig = {
 
     return config;
   },
-  images: {
-    unoptimized: true,
+  experimental: {
+    images: {
+      unoptimized: true,
+    },
   },
 };
 
