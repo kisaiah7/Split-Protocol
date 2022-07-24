@@ -15,7 +15,7 @@ const RequireAuth = ({ children }: Props) => {
   useEffect(() => {
     if (!auth.isLoading && !auth.isAuthenticated) {
       auth.setPreviousLocation(router.pathname);
-      router.replace('/');
+      router.replace('/auth');
     }
   }, [auth.isLoading, auth.isAuthenticated]);
 

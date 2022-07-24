@@ -147,10 +147,7 @@ const Pay = ({
   };
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="absolute z-20 bg-secondary px-10 py-8 sm:container mx-auto rounded-lg"
-    >
+    <form onSubmit={onSubmit} className="bg-secondary px-10 py-8 rounded-lg">
       <div className="grid grid-cols-2 w-full gap-3">
         <FormGroup
           label="Token"

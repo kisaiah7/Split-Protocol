@@ -15,7 +15,7 @@ const Navbar: NextPage = () => {
         </Link>
 
         <div className="flex flex-row justify-between items-center">
-          <Link href="/dashboard">
+          <Link href="/">
             <a className="text-muted font-bold text-sm">Dashboard</a>
           </Link>
 

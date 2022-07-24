@@ -11,10 +11,12 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
   darkTheme,
+  AvatarComponent,
 } from '@rainbow-me/rainbowkit';
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { Blockie } from '../components/profile-image';
 
 export const LOCALHOST_CHAIN_ID = 31337;
 
@@ -58,6 +60,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             'linear-gradient(90deg, #4700FF 0%, #9166FF 100%, #9166FF 100%)',
           borderRadius: 'small',
         })}
+        avatar={({ address }) => <Blockie address={address} />}
       >
         <AuthProvider>
           <Layout>
