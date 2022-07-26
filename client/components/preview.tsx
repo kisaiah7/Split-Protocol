@@ -12,6 +12,8 @@ import { ExpenseModel, DebtorModel } from '../services/expenses';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { Blockie } from './profile-image';
+import { truncate } from '../utils/truncate';
+import { calculateTimeDiff } from '../utils/time';
 
 const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
   const { address } = useAccount();
@@ -63,37 +65,6 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
     }
   }, []);
 
-  function truncate(str: string, n: number) {
-    return str.length > n ? str.substring(0, n - 1) + '...' : str;
-  }
-
-  function formatTimeType(value: number, type: string): string {
-    if (value == 0) return '';
-    if (Math.abs(value) == 1) return `  • ${Math.abs(value)} ${type}`;
-    return `${Math.abs(value)} ${type}s`;
-  }
-
-  function calculateTimeDiff(expenseDue: Date): string {
-    const currentTime = new Date();
-    if (expenseDue.getTime() < currentTime.getTime()) return 'now';
-    const timeDiff = expenseDue.getTime() - currentTime.getTime();
-    let time = timeDiff;
-    const days = Math.ceil(time / (1000 * 3600 * 24));
-    const hours = Math.ceil(time / 1000 / 60 / 60);
-    time -= hours * 1000 * 60 * 60;
-    const minutes = Math.ceil(time / 1000 / 60);
-    time -= minutes * 1000 * 60;
-    const seconds = Math.ceil(time / 1000);
-    time -= seconds * 1000;
-    if (days != 0) return `${formatTimeType(days, 'day')}`;
-    if (hours != 0) return `${formatTimeType(hours, 'hour')}`;
-    if (minutes != 0) return `${formatTimeType(minutes, 'minute')}`;
-    if (seconds != 0) return `${formatTimeType(seconds, 'second')}`;
-    return 'now';
-  }
-
-  console.log(expense);
-
   return (
     <div className="w-full h-full cursor-pointer">
       <div
@@ -125,7 +96,7 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
           {expense.name}
         </p>
         <p className="text-secondary font-normal mt-2 text-sm">
-          {expense.description}
+          {truncate(expense.description, 60)}
         </p>
 
         <div className="flex flex-row border-t-2 border-tertiary mt-4 pt-5 text-primary items-center">
