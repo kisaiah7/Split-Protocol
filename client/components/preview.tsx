@@ -83,10 +83,11 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
           </div>
 
           <button
-            className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${debtorData.hasPaid
-              ? 'bg-paid-btn-gradient'
-              : 'bg-unpaid-btn-gradient'
-              }`}
+            className={`text-primary py-2 px-3 rounded-3xl text-sm font-bold ${
+              debtorData.hasPaid
+                ? 'bg-paid-btn-gradient'
+                : 'bg-unpaid-btn-gradient'
+            }`}
           >
             {debtorData.hasPaid ? 'Paid' : 'Unpaid'}
           </button>
@@ -102,7 +103,7 @@ const Preview: NextPage<{ expense: ExpenseModel }> = (props) => {
         <div className="flex flex-row border-t-2 border-tertiary mt-4 pt-5 text-primary items-center">
           <div className="flex flex-row">
             <Image src={profileIcon} height={16} width={16} />
-            <p className="ml-2 text-xs">{truncate(expense.recipient, 10)}</p>
+            <p className="ml-2 text-xs">{truncate(expense.recipient, 7)}</p>
           </div>
 
           <div className="flex flex-row ml-3 items-center">

@@ -6,13 +6,25 @@ const CATEGORIES = [
   'Food and Drinks',
   'Misc',
 ];
-const TOKEN_BY_ADDRESS: { [key: string]: string } = {
-  '0xc2132D05D31c914a87C6611C10748AEb04B58e8F': 'USDT',
-  '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619': 'WETH',
-  '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174': 'USDC',
-  '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063': 'DAI',
-  '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270': 'WMATIC',
-};
+
+const STATUS = ['Pending', 'Paid', 'Cancelled'];
+
+const TOKEN_BY_ADDRESS: { [key: string]: string } =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        '0xc2132D05D31c914a87C6611C10748AEb04B58e8F': 'USDT',
+        '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619': 'WETH',
+        '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174': 'USDC',
+        '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063': 'DAI',
+        '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270': 'WMATIC',
+      }
+    : {
+        '0x3813e82e6f7098b9583FC0F33a962D02018B6803': 'USDT',
+        '0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa': 'WETH',
+        '0xe11A86849d99F524cAC3E7A0Ec1241828e332C62': 'USDC',
+        '0xd393b1E02dA9831Ff419e22eA105aAe4c47E1253': 'DAI',
+        '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889': 'WMATIC',
+      };
 
 export function transformDebtorData(raw: any[]): DebtorModel {
   const address = raw[0];
@@ -52,7 +64,7 @@ export function rawDataToExpense(raw: any[]): ExpenseModel {
   const amount = Number(raw[4]);
   const paymentDue = new Date(Number(raw[5]) * 1000);
   const createdAt = new Date(Number(raw[6]) * 1000);
-  const status = raw[7];
+  const status = STATUS[raw[7]];
   const creator = raw[8];
   const recipient = raw[9];
   const debtors = transformRawDebtorArray(raw[10]);

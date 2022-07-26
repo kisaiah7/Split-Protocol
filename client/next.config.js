@@ -21,6 +21,11 @@ const nextConfig = {
 
     return config;
   },
+  experimental: {
+    images: {
+      unoptimized: true,
+    },
+  },
 };
 
 module.exports = nextConfig;

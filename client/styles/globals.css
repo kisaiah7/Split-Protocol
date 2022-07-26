@@ -7,8 +7,8 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: Nunito, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: Nunito, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 a {
@@ -18,13 +18,4 @@ a {
 
 * {
   box-sizing: border-box;
-}
-
-.react-tooltip-lite {
-  background: #2e283b;
-  color: white;
-}
-
-.react-tooltip-lite-arrow {
-  border-color: #363047;
 }

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export": "next export"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^0.4.2",
@@ -22,7 +23,6 @@
     "react-dom": "18.2.0",
     "react-loader-spinner": "^5.1.5",
     "react-toastify": "^9.0.6",
-    "react-tooltip-lite": "^1.12.0",
     "wagmi": "^0.5.9"
   },
   "devDependencies": {

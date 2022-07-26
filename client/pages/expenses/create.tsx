@@ -20,6 +20,7 @@ import Router from 'next/router';
 import { toast } from 'react-toastify';
 import Loader from '../../components/loader';
 import { TokenSymbol } from '../../enums/TokenSymbol';
+import DarkOverlay from '../../components/dark-overlay';
 
 export enum ExpenseCategory {
   ACCOMODATION = 'accomodation',
@@ -138,7 +139,7 @@ const Expense: NextPage = () => {
       if (res < 0) {
         toast.error('Error creating expense');
       } else {
-        toast.success('New expense created. Redirecting...');
+        toast.success('New expense created');
       }
       Router.push(`/expenses/${latestExpenseIndex + 1}`);
       setSubmitLoading(false);
@@ -150,132 +151,131 @@ const Expense: NextPage = () => {
   return (
     <RequireAuth>
       <div className="h-full bg-body-gradient pb-20 flex">
-        {!submitLoading ? (
-          <div className="container mx-auto mt-10">
-            <Heading type="secondary">Create a shared expense</Heading>
-            <form
-              className="rounded-md bg-secondary p-16 mt-8 flex flex-col gap-8"
-              onSubmit={onSubmit}
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <FormGroup
-                  label="Name"
-                  className="col-span-2"
-                  formControl={
-                    <Input
-                      name="name"
-                      value={formData.name}
-                      placeholder="Holiday villa"
-                      onChange={onChange}
-                    />
-                  }
-                />
-                <FormGroup
-                  label="Recipient"
-                  className="col-span-2"
-                  formControl={
-                    <Input
-                      name="recipientAddress"
-                      value={formData.recipientAddress}
-                      placeholder="villas-on-mallorca.eth"
-                      onChange={onChange}
-                    />
-                  }
-                />
-                <FormGroup
-                  label="Recipient token"
-                  formControl={
-                    <Select
-                      name="token"
-                      placeholder="Choose..."
-                      options={Object.values(TokenSymbol)}
-                      value={formData.token}
-                      onChange={onChange}
-                    />
-                  }
-                />
-                <FormGroup
-                  label="Total amount"
-                  formControl={
-                    <Input
-                      name="amount"
-                      value={formData.amount.toString()}
-                      placeholder="4000"
-                      type="number"
-                      onChange={onChange}
-                    />
-                  }
-                />
-                <FormGroup
-                  label="Category"
-                  className="col-span-2"
-                  formControl={
-                    <Select
-                      name="category"
-                      placeholder="Choose..."
-                      options={Object.values(ExpenseCategory)}
-                      value={formData.category}
-                      onChange={onChange}
-                    />
-                  }
-                />
-                <FormGroup
-                  label="Description"
-                  className="col-span-2"
-                  formControl={
-                    <TextArea
-                      name="description"
-                      value={formData.description}
-                      placeholder="Lorem ipsum dolor sit amet..."
-                      onChange={onChange}
-                    />
-                  }
-                />
-              </div>
-              <div>
-                <Heading type="tertiary">Debtors</Heading>
-                <ul className="flex flex-col gap-4 mt-4">
-                  {formData.debtors.map((debtor, index) => (
-                    <DebtorListItem
-                      key={index}
-                      debtor={debtor}
-                      isRemovable={index !== 0}
-                      onClickRemoveButton={() => removeDebtor(index)}
-                      onChange={(changedDebtor) =>
-                        onChangeDebtor(index, changedDebtor)
-                      }
-                    />
-                  ))}
-                </ul>
-                <Button
-                  Icon={PlusIcon}
-                  label="Add debtor"
-                  theme="condensed"
-                  className="mt-4"
-                  onClick={addDebtor}
-                />
-              </div>
+        <div className="container mx-auto mt-16">
+          <Heading type="secondary">Create a shared expense</Heading>
+          <form
+            className="rounded-md bg-secondary p-16 mt-8 flex flex-col gap-8"
+            onSubmit={onSubmit}
+          >
+            <div className="grid grid-cols-2 gap-4">
               <FormGroup
-                label="Payment due"
+                label="Name"
+                className="col-span-2"
                 formControl={
                   <Input
-                    name="paymentDue"
-                    value={formData.paymentDue.toString()}
-                    placeholder="2022-07-15"
+                    name="name"
+                    value={formData.name}
+                    placeholder="Holiday villa"
+                    onChange={onChange}
+                  />
+                }
+              />
+              <FormGroup
+                label="Recipient"
+                className="col-span-2"
+                formControl={
+                  <Input
+                    name="recipientAddress"
+                    value={formData.recipientAddress}
+                    placeholder="villas-on-mallorca.eth"
+                    onChange={onChange}
+                  />
+                }
+              />
+              <FormGroup
+                label="Recipient token"
+                formControl={
+                  <Select
+                    name="token"
+                    placeholder="Choose..."
+                    options={Object.values(TokenSymbol)}
+                    value={formData.token}
+                    onChange={onChange}
+                  />
+                }
+              />
+              <FormGroup
+                label="Total amount"
+                formControl={
+                  <Input
+                    name="amount"
+                    value={formData.amount.toString()}
+                    placeholder="4000"
                     type="number"
                     onChange={onChange}
                   />
                 }
               />
-              <div className="flex justify-end">
-                <Button label="Confirm" Icon={CheckIcon} type="submit" />
-              </div>
-            </form>
-          </div>
-        ) : (
-          <div style={{ minHeight: '70vh' }}>
+              <FormGroup
+                label="Category"
+                className="col-span-2"
+                formControl={
+                  <Select
+                    name="category"
+                    placeholder="Choose..."
+                    options={Object.values(ExpenseCategory)}
+                    value={formData.category}
+                    onChange={onChange}
+                  />
+                }
+              />
+              <FormGroup
+                label="Description"
+                className="col-span-2"
+                formControl={
+                  <TextArea
+                    name="description"
+                    value={formData.description}
+                    placeholder="Lorem ipsum dolor sit amet..."
+                    onChange={onChange}
+                  />
+                }
+              />
+            </div>
+            <div>
+              <Heading type="tertiary">Debtors</Heading>
+              <ul className="flex flex-col gap-4 mt-4">
+                {formData.debtors.map((debtor, index) => (
+                  <DebtorListItem
+                    key={index}
+                    debtor={debtor}
+                    isRemovable={index !== 0}
+                    onClickRemoveButton={() => removeDebtor(index)}
+                    onChange={(changedDebtor) =>
+                      onChangeDebtor(index, changedDebtor)
+                    }
+                  />
+                ))}
+              </ul>
+              <Button
+                Icon={PlusIcon}
+                label="Add debtor"
+                theme="condensed"
+                className="mt-4"
+                onClick={addDebtor}
+              />
+            </div>
+            <FormGroup
+              label="Payment due"
+              formControl={
+                <Input
+                  name="paymentDue"
+                  value={formData.paymentDue.toString()}
+                  placeholder="2022-07-15"
+                  type="number"
+                  onChange={onChange}
+                />
+              }
+            />
+            <div className="flex justify-end">
+              <Button label="Confirm" Icon={CheckIcon} type="submit" />
+            </div>
+          </form>
+        </div>
+        {submitLoading && (
+          <DarkOverlay>
             <Loader />
-          </div>
+          </DarkOverlay>
         )}
       </div>
     </RequireAuth>

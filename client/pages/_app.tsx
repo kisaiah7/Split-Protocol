@@ -15,19 +15,23 @@ import {
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { Blockie } from '../components/profile-image';
 
 export const LOCALHOST_CHAIN_ID = 31337;
 
+const defaultChain =
+  process.env.NODE_ENV === 'production'
+    ? chain.polygonMumbai
+    : {
+        id: LOCALHOST_CHAIN_ID,
+        name: chain.localhost.name,
+        network: chain.localhost.network,
+        rpcUrls: chain.localhost.rpcUrls,
+        nativeCurrency: chain.polygon.nativeCurrency,
+      };
+
 const { chains, provider } = configureChains(
-  [
-    {
-      id: LOCALHOST_CHAIN_ID,
-      name: chain.localhost.name,
-      network: chain.localhost.network,
-      rpcUrls: chain.localhost.rpcUrls,
-      nativeCurrency: chain.polygon.nativeCurrency,
-    },
-  ],
+  [defaultChain],
   [
     alchemyProvider({
       alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
@@ -50,7 +54,6 @@ const wagmiClient = createClient({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
-      <ToastContainer />
       <RainbowKitProvider
         chains={chains}
         theme={darkTheme({
@@ -58,8 +61,10 @@ function MyApp({ Component, pageProps }: AppProps) {
             'linear-gradient(90deg, #4700FF 0%, #9166FF 100%, #9166FF 100%)',
           borderRadius: 'small',
         })}
+        avatar={({ address }) => <Blockie address={address} />}
       >
         <AuthProvider>
+          <ToastContainer />
           <Layout>
             <Component {...pageProps} />
           </Layout>

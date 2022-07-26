@@ -8,18 +8,12 @@ import CancelIcon from '../public/close-icon.svg?inline';
 // @ts-ignore
 import CheckIcon from '../public/check-icon.svg?inline';
 import { toast } from 'react-toastify';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import expenseService from '../services/expenses';
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { TokenSymbol } from '../enums/TokenSymbol';
 import useSwap from '../hooks/use-swap';
-import {
-  useAccount,
-  useContract,
-  useNetwork,
-  useProvider,
-  useSigner,
-} from 'wagmi';
+import { useAccount, useContract, useNetwork, useSigner } from 'wagmi';
 import SplitContractArtifact from '../utils/abis/Split.json';
 import { ethers } from 'ethers';
 import WMATICABI from '../utils/abis/WMATIC.json';
@@ -65,7 +59,6 @@ const Pay = ({
     getQuoteReverse,
   } = useSwap();
   const { data: signer } = useSigner();
-  const provider = useProvider();
   const splitContract = useContract({
     addressOrName: process.env.NEXT_PUBLIC_SPLIT_CONTRACT_ADDRESS!,
     contractInterface: SplitContractArtifact.abi,
@@ -73,6 +66,8 @@ const Pay = ({
   });
   const { address } = useAccount();
   const { chain } = useNetwork();
+
+  const router = useRouter();
 
   useEffect(() => {
     if (!signer || chain?.id !== LOCALHOST_CHAIN_ID) return;
@@ -142,15 +137,11 @@ const Pay = ({
     } else {
       toast.success('New payment made. Redirecting...');
     }
-    Router.push(`/expenses/${expenseIndex}`);
-    toggleViewPayForm();
+    router.reload();
   };
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="absolute z-20 bg-secondary px-10 py-8 sm:container mx-auto rounded-lg"
-    >
+    <form onSubmit={onSubmit} className="bg-secondary px-10 py-8 rounded-lg">
       <div className="grid grid-cols-2 w-full gap-3">
         <FormGroup
           label="Token"
@@ -225,11 +216,11 @@ const Pay = ({
         <p className="text-right">
           {payFormData.swapFee} {chain?.nativeCurrency?.symbol}
         </p>
-        <span className="col-span-2 mt-2 flex justify-end text-muted text-xs flex items-center">
+        <span className="col-span-2 mt-2 justify-end text-muted text-xs flex items-center">
           <Image src={infoIcon} width={10} height={10} />
           <p className="ml-1">
-            If your selected token diverges from the recipient's token a small
-            fee has to be provided in order to swap the token.
+            If your selected token diverges from the recipient&apos;s token a
+            small fee has to be provided in order to swap the token.
           </p>
         </span>
       </div>
